@@ -19,8 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const socialLinksContainer = document.getElementById('socialLinksContainer');
 
     const chartControls = document.querySelector('.chart-controls');
-    const priceChartCanvas = document.getElementById('priceChart');
-    let coinChart; // Variável para armazenar a instância do gráfico Chart.js
+    const priceChartContainer = document.getElementById('priceChart'); // Alterado para ser o contêiner do gráfico
+    let coinChart; // Variável para armazenar a instância do ApexCharts
 
     const COINGECKO_API_BASE_URL = 'https://api.coingecko.com/api/v3';
     const VS_CURRENCY = 'brl'; // Definindo a moeda de comparação globalmente para BRL
@@ -42,7 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function formatCurrency(value) {
         if (value === null || value === undefined) return 'R$ N/A';
-        // Usar 'pt-BR' para localização e 'BRL' para a moeda
         return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2, maximumFractionDigits: 6 });
     }
 
@@ -67,155 +66,159 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Desenha o gráfico de preços usando Chart.js com ajustes de design.
-     * @param {Array<Array<number>>} prices - Array de arrays, onde cada sub-array é [timestamp, price].
-     * @param {string} coinId - O ID da moeda para determinar a cor da linha.
+     * Desenha o gráfico de preços usando ApexCharts (Candlestick).
+     * @param {Array<Array<number>>} ohlcData - Array de arrays, onde cada sub-array é [timestamp, open, high, low, close].
      */
-    function renderPriceChart(prices, coinId) {
-        // Formatar dados para Chart.js
-        const labels = prices.map(p => new Date(p[0]).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }));
-        const data = prices.map(p => p[1]);
+    function renderPriceChart(ohlcData) {
+        // Formatar dados para ApexCharts
+        // ApexCharts espera um array de objetos { x: timestamp, y: [open, high, low, close] }
+        const seriesData = ohlcData.map(d => ({
+            x: new Date(d[0]),
+            y: [d[1], d[2], d[3], d[4]]
+        }));
 
-        // Determinar a cor da linha com base na variação do último preço vs primeiro
-        const firstPrice = data.length > 0 ? data[0] : 0;
-        const lastPrice = data.length > 0 ? data[data.length - 1] : 0;
-        const lineColor = lastPrice >= firstPrice ? 'rgb(0, 200, 83)' : 'rgb(255, 0, 0)'; // Verde para alta, Vermelho para baixa
-
-        // Destruir gráfico anterior se existir
-        if (coinChart) {
-            coinChart.destroy();
-        }
-
-        const ctx = priceChartCanvas.getContext('2d');
-        coinChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: `Preço (${VS_CURRENCY.toUpperCase()})`, // Rótulo do gráfico em BRL
-                    data: data,
-                    borderColor: lineColor, // Cor da linha dinâmica
-                    backgroundColor: function(context) {
-                        const chart = context.chart;
-                        const {ctx, chartArea} = chart;
-                        if (!chartArea) {
-                            // Este caso acontece no carregamento inicial do gráfico
-                            return;
-                        }
-                        const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
-                        // Ajuste as cores do gradiente para combinar com a linha
-                        const startColor = lineColor.replace('rgb', 'rgba').replace(')', ', 0.1)'); // Levemente transparente na base
-                        const endColor = lineColor.replace('rgb', 'rgba').replace(')', ', 0.4)'); // Mais opaco no topo
-                        gradient.addColorStop(0, startColor);
-                        gradient.addColorStop(1, endColor);
-                        return gradient;
-                    },
-                    fill: true,
-                    tension: 0.2, // Suavidade da linha
-                    pointRadius: 0, // Remover pontos individuais
-                    pointHoverRadius: 6, // Aumentar o ponto no hover
-                    borderWidth: 3 // Linha mais grossa
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: { // Animação de carregamento
-                    duration: 1200, // Duração em ms
-                    easing: 'easeInOutQuart' // Tipo de easing para suavizar
+        const options = {
+            chart: {
+                type: 'candlestick',
+                height: 350,
+                background: 'transparent', // Para integrar com o tema CSS
+                toolbar: {
+                    show: false // Oculta a barra de ferramentas padrão
                 },
-                plugins: {
-                    legend: {
-                        display: false // Oculta a legenda
+                zoom: {
+                    enabled: true // Habilita zoom
+                }
+            },
+            series: [{
+                data: seriesData
+            }],
+            title: {
+                text: 'Preço da Moeda (OHLC)',
+                align: 'left',
+                style: {
+                    color: 'var(--text-color)' // Usa cor do tema CSS
+                }
+            },
+            xaxis: {
+                type: 'datetime',
+                labels: {
+                    datetimeFormatter: {
+                        year: 'yyyy',
+                        month: 'MMM \'yy',
+                        day: 'dd MMM',
+                        hour: 'HH:mm'
                     },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false,
-                        backgroundColor: 'rgba(30, 30, 30, 0.9)', // Fundo escuro semi-transparente
-                        titleColor: '#fff', // Cor do título (data/hora)
-                        bodyColor: '#fff', // Cor do texto do corpo (preço)
-                        borderColor: 'rgba(75, 192, 192, 0.7)', // Borda
-                        borderWidth: 1,
-                        cornerRadius: 6, // Bordas arredondadas
-                        padding: 12, // Preenchimento interno
-                        displayColors: false, // Oculta a caixa de cor pequena no tooltip
-                        callbacks: {
-                            label: function(context) {
-                                // Formatar o valor do tooltip em BRL
-                                return `Preço: ${formatCurrency(context.raw)}`;
-                            },
-                            title: function(context) {
-                                // Formatar a data/hora para o título do tooltip
-                                return new Date(context[0].parsed.x).toLocaleString('pt-BR', {
-                                    day: '2-digit', month: '2-digit', year: 'numeric',
-                                    hour: '2-digit', minute: '2-digit', second: '2-digit'
-                                });
-                            }
-                        }
+                    style: {
+                        colors: 'var(--text-color)' // Usa cor do tema CSS
                     }
                 },
-                scales: {
-                    x: {
-                        type: 'category',
-                        ticks: {
-                            maxRotation: 45,
-                            minRotation: 45,
-                            color: 'var(--text-color)', // Cor dos rótulos do eixo X
-                            autoSkip: true,
-                            maxTicksLimit: 10,
-                            font: { // Ajuste da fonte dos rótulos
-                                size: 10
-                            }
-                        },
-                        grid: {
-                            display: false // Remover as linhas de grade do eixo X
-                        },
-                        border: {
-                            display: false // Remover a linha do eixo X
-                        }
+                axisBorder: {
+                    show: false // Oculta a borda do eixo X
+                },
+                axisTicks: {
+                    show: false // Oculta os ticks do eixo X
+                }
+            },
+            yaxis: {
+                tooltip: {
+                    enabled: true
+                },
+                labels: {
+                    formatter: function(val) {
+                        return formatCurrency(val); // Formata rótulos do eixo Y como BRL
                     },
-                    y: {
-                        ticks: {
-                            callback: function(value, index, values) {
-                                // Formatar os rótulos do eixo Y como moeda BRL
-                                return formatCurrency(value);
-                            },
-                            color: 'var(--text-color)', // Cor dos rótulos do eixo Y
-                            font: { // Ajuste da fonte dos rótulos
-                                size: 10
-                            }
-                        },
-                        grid: {
-                            color: 'rgba(200, 200, 200, 0.1)' // Linhas de grade mais suaves no eixo Y
-                        },
-                        border: {
-                            display: false // Remover a linha do eixo Y
-                        }
+                    style: {
+                        colors: 'var(--text-color)' // Usa cor do tema CSS
+                    }
+                },
+                axisBorder: {
+                    show: false // Oculta a borda do eixo Y
+                },
+                axisTicks: {
+                    show: false // Oculta os ticks do eixo Y
+                }
+            },
+            plotOptions: {
+                candlestick: {
+                    colors: {
+                        // Cores para velas de alta e baixa
+                        // Você pode ajustar estas cores no seu CSS para variáveis, se desejar
+                        // Ex: 'var(--positive-color)', 'var(--negative-color)'
+                        upward: '#00B746', // Verde para alta
+                        downward: '#EF403C' // Vermelho para baixa
+                    },
+                    wick: {
+                        useFillColor: true // Fio (wick) da vela usa a cor de preenchimento
+                    }
+                }
+            },
+            tooltip: {
+                theme: 'dark', // Tema escuro para o tooltip
+                x: {
+                    format: 'dd MMM HH:mm' // Formato da data no tooltip
+                },
+                y: {
+                    formatter: function(val) {
+                        return formatCurrency(val); // Formata valores do tooltip
+                    }
+                }
+            },
+            grid: {
+                show: true,
+                borderColor: 'var(--border-color)', // Cor das linhas de grade do tema
+                strokeDashArray: 2, // Linhas pontilhadas para as grades
+                xaxis: {
+                    lines: {
+                        show: false // Oculta linhas de grade verticais
+                    }
+                },
+                yaxis: {
+                    lines: {
+                        show: true // Mostra linhas de grade horizontais
                     }
                 }
             }
-        });
+        };
+
+        // Se o gráfico já existe, ele é atualizado. Senão, é criado.
+        if (coinChart) {
+            coinChart.updateSeries([{ data: seriesData }]);
+        } else {
+            coinChart = new ApexCharts(priceChartContainer, options);
+            coinChart.render();
+        }
     }
 
     /**
-     * Busca os dados históricos de preços de uma moeda.
+     * Busca os dados históricos de preços OHLC de uma moeda.
+     * A API CoinGecko para Candlestick tem um limite de dias diferente (e.g., 1, 7, 14, 30, 90, 180, 365, "max").
      * @param {string} coinId - O ID da moeda.
      * @param {string} days - O período de tempo (e.g., '1', '7', '30', '365', 'max').
      */
     async function fetchChartData(coinId, days) {
         try {
-            const url = `${COINGECKO_API_BASE_URL}/coins/${coinId}/market_chart?vs_currency=${VS_CURRENCY}&days=${days}`;
+            // Para candlestick, usamos o endpoint /ohlc e precisamos mapear os dias corretamente.
+            // A API de OHLC não aceita '1' ou 'max' da mesma forma que market_chart.
+            // Para "1 dia" talvez seja melhor usar "7" e filtrar ou adaptar a granularidade.
+            // Vamos manter os botões atuais, mas teremos que considerar a granularidade da API /ohlc
+            // API CoinGecko /ohlc granularidade: 1-2 dias = 30min, 3-30 dias = 4h, >30 dias = 4d
+            let validDays = days;
+            if (days === '1') validDays = '7'; // Pegar 7 dias para ter granularidade de 30min
+            if (days === 'max') validDays = '365'; // 'max' não é suportado pelo /ohlc, usar 365 como fallback
+
+            const url = `${COINGECKO_API_BASE_URL}/coins/${coinId}/ohlc?vs_currency=${VS_CURRENCY}&days=${validDays}`;
             const response = await fetch(url);
             if (!response.ok) {
                 if (response.status === 429) {
                     throw new Error('Limite de taxa da CoinGecko excedido para dados de gráfico. Tente novamente mais tarde.');
                 }
-                throw new Error(`Erro ao buscar dados do gráfico: ${response.statusText}`);
+                throw new Error(`Erro ao buscar dados do gráfico OHLC: ${response.statusText}`);
             }
             const data = await response.json();
-            return data.prices; // Retorna um array de [timestamp, price]
+            // data é um array de [timestamp, open, high, low, close]
+            return data;
         } catch (error) {
-            console.error('Erro ao buscar dados do gráfico:', error);
+            console.error('Erro ao buscar dados do gráfico OHLC:', error);
             alert('Erro ao carregar dados do gráfico: ' + error.message);
             return [];
         }
@@ -229,7 +232,6 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchCoinDetails(coinId, chartDays = '1') {
         toggleContent(true); // Mostra o loader
         try {
-            // Busca dados detalhados da moeda
             const coinDetailsResponse = await fetch(`${COINGECKO_API_BASE_URL}/coins/${coinId}?localization=true&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`);
 
             if (!coinDetailsResponse.ok) {
@@ -239,16 +241,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(`Erro ao buscar dados: ${coinDetailsResponse.statusText}`);
             }
             const coin = await coinDetailsResponse.json();
-            console.log('Dados da moeda:', coin); // Para depuração, verifique o objeto 'coin' no console
+            console.log('Dados da moeda:', coin);
 
-            // Preencher o cabeçalho e informações básicas
             coinImage.src = coin.image.large;
             coinName.textContent = coin.name;
             coinSymbol.textContent = coin.symbol.toUpperCase();
             coinPrice.textContent = formatCurrency(coin.market_data.current_price.brl);
             coinPriceChange24h.innerHTML = `24h: ${formatPercentage(coin.market_data.price_change_percentage_24h_in_currency ? coin.market_data.price_change_percentage_24h_in_currency.brl : coin.market_data.price_change_percentage_24h)}`;
 
-            // Preencher estatísticas, acessando dados em BRL
             marketCap.textContent = formatCurrency(coin.market_data.market_cap.brl);
             totalVolume.textContent = formatCurrency(coin.market_data.total_volume.brl);
             circulatingSupply.textContent = coin.market_data.circulating_supply ? coin.market_data.circulating_supply.toLocaleString('pt-BR') : 'N/A';
@@ -257,12 +257,10 @@ document.addEventListener('DOMContentLoaded', () => {
             ath.textContent = formatCurrency(coin.market_data.ath.brl);
             athChange.innerHTML = formatPercentage(coin.market_data.ath_change_percentage.brl);
 
-            // Descrição em português - Acessa .pt ou .en como fallback
             descCoinName.textContent = coin.name;
             descriptionText.innerHTML = coin.description[LOCALIZATION] || coin.description.en || 'Nenhuma descrição disponível.';
 
-            // Links sociais e outros
-            socialLinksContainer.innerHTML = ''; // Limpa links anteriores
+            socialLinksContainer.innerHTML = '';
             if (coin.links) {
                 if (coin.links.homepage && coin.links.homepage[0]) {
                     socialLinksContainer.innerHTML += `<a href="${coin.links.homepage[0]}" target="_blank"><i class="fas fa-globe"></i> Website</a>`;
@@ -281,36 +279,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // Busca e renderiza dados do gráfico
-            const prices = await fetchChartData(coinId, chartDays);
-            renderPriceChart(prices, coinId);
+            const ohlcData = await fetchChartData(coinId, chartDays);
+            renderPriceChart(ohlcData);
 
-            toggleContent(false); // Esconde o loader, mostra o conteúdo
+            toggleContent(false);
 
         } catch (error) {
             console.error('Erro ao carregar detalhes da moeda:', error);
             coinDetailsContent.innerHTML = `<p style="text-align: center; color: var(--danger-color);">Erro ao carregar detalhes da moeda: ${error.message}</p>`;
-            toggleContent(false); // Esconde o loader mesmo em caso de erro
+            toggleContent(false);
         }
     }
 
     // Event listener para os botões de controle do gráfico
     chartControls.addEventListener('click', async (event) => {
         if (event.target.tagName === 'BUTTON') {
-            // Remove a classe 'active' de todos os botões
             chartControls.querySelectorAll('button').forEach(button => {
                 button.classList.remove('active');
             });
-            // Adiciona a classe 'active' ao botão clicado
             event.target.classList.add('active');
 
             const coinId = getCoinIdFromUrl();
-            const days = event.target.dataset.days;
+            const days = event.target.dataset.days; // '1', '7', '30', etc.
 
             if (coinId && days) {
-                // Ao invés de recarregar TUDO, só recarregar o gráfico
-                const prices = await fetchChartData(coinId, days);
-                renderPriceChart(prices, coinId);
+                // A CoinGecko API /ohlc tem granularidades específicas para dias
+                // Ajustamos o 'days' aqui para pegar a granularidade correta para o Candlestick
+                // Por exemplo, para "1 dia", a API só dá granularidade de 30min se o período for até 2 dias.
+                // Para períodos maiores, a granularidade diminui.
+                // Vamos passar o valor de 'days' e deixar a função fetchChartData ajustar se necessário.
+                const ohlcData = await fetchChartData(coinId, days);
+                renderPriceChart(ohlcData);
             }
         }
     });
@@ -318,7 +317,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inicializa a página de detalhes
     const coinId = getCoinIdFromUrl();
     if (coinId) {
-        fetchCoinDetails(coinId); // Carrega detalhes e o gráfico de 24h por padrão
+        // Ativa o botão de 24h por padrão, mas para OHLC, usaremos 7 dias inicialmente
+        // para garantir dados OHLC com granularidade adequada (30min).
+        // Se a API permitir 1 dia de OHLC, use '1'
+        // Para este exemplo, manteremos os botões como estão e a função fetchChartData
+        // fará o ajuste de 'days' para o endpoint /ohlc
+        fetchCoinDetails(coinId);
     } else {
         coinDetailsContent.innerHTML = `<p style="text-align: center; color: var(--danger-color);">ID da moeda não encontrado na URL.</p>`;
         toggleContent(false);
