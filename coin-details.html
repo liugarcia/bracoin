@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes da Moeda</title>
+    <link rel="stylesheet" href="style.css"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Estilos específicos para coin-details.html */
+        .container {
+            max-width: 960px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: var(--card-background-color);
+            border-radius: 8px;
+            box-shadow: var(--shadow-color);
+        }
+        .coin-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+        .coin-header img {
+            width: 60px;
+            height: 60px;
+            margin-right: 15px;
+            border-radius: 50%;
+        }
+        .coin-header h1 {
+            font-size: 2.2em;
+            color: var(--primary-color);
+            margin: 0;
+            display: flex;
+            align-items: baseline;
+        }
+        .coin-header .coin-symbol {
+            font-size: 0.7em;
+            color: var(--text-muted);
+            margin-left: 10px;
+        }
+        .coin-price {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--text-color);
+        }
+        .price-change-24h {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        .price-change.positive {
+            color: var(--success-color);
+        }
+        .price-change.negative {
+            color: var(--danger-color);
+        }
+        .coin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-item {
+            background-color: var(--input-bg-color);
+            padding: 15px;
+            border-radius: 6px;
+            box-shadow: var(--shadow-color-light);
+        }
+        .stat-item strong {
+            display: block;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+        }
+        .stat-item span {
+            color: var(--text-color);
+        }
+        .coin-description {
+            margin-bottom: 30px;
+        }
+        .coin-description h2 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        .coin-description p {
+            line-height: 1.6;
+            color: var(--text-color);
+        }
+        .social-links {
+            margin-bottom: 30px;
+        }
+        .social-links h2 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s ease;
+        }
+        .social-links a:hover {
+            background-color: var(--primary-color-dark);
+        }
+        .social-links i {
+            margin-right: 8px;
+        }
+        .chart-container {
+            width: 100%;
+            max-width: 900px;
+            margin: 20px auto;
+            background-color: var(--input-bg-color);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-color-light);
+        }
+        .chart-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .chart-controls button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .chart-controls button:hover {
+            background-color: var(--primary-color-dark);
+        }
+        .chart-controls button.active {
+            background-color: var(--primary-color);
+        }
+
+        #coinDetailsLoader {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            font-size: 1.2em;
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="coinDetailsLoader">Carregando detalhes da moeda...</div>
+        <div id="coinDetailsContent" style="display: none;">
+            <div class="coin-header">
+                <img id="coinImage" src="" alt="Logo da Moeda">
+                <h1>
+                    <span id="coinName"></span>
+                    <span id="coinSymbol" class="coin-symbol"></span>
+                </h1>
+            </div>
+
+            <div class="coin-price" id="coinPrice"></div>
+            <div class="price-change-24h" id="coinPriceChange24h"></div>
+
+            <div class="chart-container">
+                <div class="chart-controls">
+                    <button data-days="1" class="active">24h</button>
+                    <button data-days="7">7d</button>
+                    <button data-days="30">30d</button>
+                    <button data-days="90">90d</button>
+                    <button data-days="365">1y</button>
+                    <button data-days="max">All</button>
+                </div>
+                <canvas id="priceChart"></canvas>
+            </div>
+
+            <div class="coin-stats">
+                <div class="stat-item">
+                    <strong>Capitalização de Mercado:</strong>
+                    <span id="marketCap"></span>
+                </div>
+                <div class="stat-item">
+                    <strong>Volume (24h):</strong>
+                    <span id="totalVolume"></span>
+                </div>
+                <div class="stat-item">
+                    <strong>Fornecimento Circulante:</strong>
+                    <span id="circulatingSupply"></span>
+                </div>
+                <div class="stat-item">
+                    <strong>Fornecimento Total:</strong>
+                    <span id="totalSupply"></span>
+                </div>
+                <div class="stat-item">
+                    <strong>Rank:</strong>
+                    <span id="marketCapRank"></span>
+                </div>
+                <div class="stat-item">
+                    <strong>Recorde Histórico (ATH):</strong>
+                    <span id="ath"></span>
+                </div>
+                <div class="stat-item">
+                    <strong>Mudança ATH:</strong>
+                    <span id="athChange"></span>
+                </div>
+            </div>
+
+            <div class="coin-description">
+                <h2>O que é <span id="descCoinName"></span>?</h2>
+                <p id="descriptionText"></p>
+            </div>
+
+            <div class="social-links">
+                <h2>Links e Redes Sociais</h2>
+                <div id="socialLinksContainer">
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="coin-details.js"></script>
+</body>
+</html>
