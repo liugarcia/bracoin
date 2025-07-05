@@ -29,6 +29,10 @@
     --primary-color-rgb: 63, 81, 181;
     --danger-color-rgb: 244, 67, 54;
     --success-color-rgb: 76, 175, 80;
+
+    /* NOVAS VARIÁVEIS PARA CORES DO GRÁFICO ApexCharts */
+    --chart-upward-color: #00B746; /* Verde para velas de alta */
+    --chart-downward-color: #EF403C; /* Vermelho para velas de baixa */
 }
 
 * {
@@ -469,7 +473,7 @@ body {
 }
 
 /* Detalhes da Moeda no Modal (ou na página principal) */
-.container {
+.container { /* Este seletor está em duplicidade, o de cima é mais genérico. O de cima deve ser suficiente. */
     max-width: 960px;
     margin: var(--spacing-md) auto;
     padding: var(--spacing-md);
@@ -627,7 +631,9 @@ body {
     border-radius: var(--border-radius);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     height: 350px; /* Mantém a altura fixa para consistência */
-    position: relative; /* Adicionado para posicionamento absoluto, se necessário */
+    position: relative;
+    /* Adicionado: overflow hidden para garantir que nada do ApexCharts vaze */
+    overflow: hidden;
 }
 
 /* Controles do Gráfico (botões) */
@@ -674,11 +680,67 @@ body {
     color: var(--primary-color);
 }
 
----
-### Responsividade Aprimorada
+/* ------------------------------------------- */
+/* NOVOS ESTILOS PARA APEXCHARTS.JS (SOBRESCRITAS) */
+/* ------------------------------------------- */
 
-```css
-/* Responsividade */
+/* Estilos globais do SVG gerado pelo ApexCharts */
+/* O ApexCharts cria vários elementos SVG e DIVs internamente */
+#priceChart .apexcharts-canvas {
+    margin: 0 auto; /* Centraliza o gráfico dentro do contêiner se ele for menor */
+    /* Remove o background padrão do ApexCharts, usaremos o do chart-container */
+    background: transparent !important;
+}
+
+/* Cores de texto do gráfico (rótulos de eixo, título, etc.) */
+/* O ApexCharts usa classes específicas, podemos sobrescrevê-las */
+.apexcharts-tooltip,
+.apexcharts-xaxis-label,
+.apexcharts-yaxis-label,
+.apexcharts-title-text,
+.apexcharts-legend-text {
+    fill: var(--text-light) !important; /* Força a cor do texto para claro */
+    color: var(--text-light) !important; /* Para garantir compatibilidade */
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+/* Cores das linhas de grade */
+.apexcharts-gridline {
+    stroke: var(--border-color) !important; /* Cor da borda para as linhas de grade */
+    stroke-dasharray: 2 !important; /* Para linhas pontilhadas, se desejado */
+    opacity: 0.5; /* Suaviza as linhas de grade */
+}
+
+/* Cores dos eixos (as linhas dos eixos X e Y) */
+.apexcharts-xaxis-line,
+.apexcharts-yaxis-line {
+    stroke: transparent !important; /* Torna as linhas do eixo invisíveis se quiser um visual mais limpo */
+}
+
+/* Cores das velas (candlestick) - Definidas principalmente no JS, mas podemos forçar aqui se necessário */
+/* .apexcharts-candlestick-area.apexcharts-series-0 .apexcharts-candlestick-rect.apexcharts-fill-up {
+    fill: var(--chart-upward-color) !important;
+    stroke: var(--chart-upward-color) !important;
+}
+.apexcharts-candlestick-area.apexcharts-series-0 .apexcharts-candlestick-rect.apexcharts-fill-down {
+    fill: var(--chart-downward-color) !important;
+    stroke: var(--chart-downward-color) !important;
+} */
+
+/* Estilos para o tooltip */
+.apexcharts-tooltip.apexcharts-theme-dark {
+    background: var(--card-background) !important; /* Fundo do tooltip mais escuro */
+    color: var(--text-light) !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3) !important;
+    border-radius: var(--border-radius) !important;
+}
+
+.apexcharts-tooltip-series-group.apexcharts-active .apexcharts-tooltip-text {
+    color: var(--text-light) !important; /* Cor do texto no tooltip */
+}
+
+/* Responsividade Aprimorada */
 @media (max-width: 992px) {
     .main-header .header-content {
         flex-direction: column;
@@ -716,27 +778,24 @@ body {
         flex-direction: column;
         gap: 0;
     }
-    /* Removido .coin-detail-header e seus sub-elementos para evitar duplicação */
-    /* Usaremos .coin-header existente para simplicidade */
-
     .coin-header h1 {
         font-size: 1.6em;
-        white-space: normal; /* Permite que o nome quebre em telas menores */
+        white-space: normal;
         max-width: 100%;
     }
     .coin-price {
         font-size: 1.8em;
     }
     .coin-stats {
-        grid-template-columns: 1fr 1fr; /* Duas colunas */
+        grid-template-columns: 1fr 1fr;
     }
     .stat-item strong {
-        white-space: normal; /* Permite que o label da estatística quebre */
+        white-space: normal;
     }
     .modal-content {
         padding: var(--spacing-md);
     }
-    .social-links-list {
+    .social-links-list { /* Este seletor não está no seu HTML atual, pode ser removido */
         justify-content: center;
     }
     .chart-controls {
@@ -777,13 +836,13 @@ body {
         padding: 0.15rem 0.4rem;
     }
     .coin-stats {
-        grid-template-columns: 1fr; /* Uma coluna */
+        grid-template-columns: 1fr;
     }
     .modal-content {
         width: 95%;
         padding: var(--spacing-md);
     }
-    .coin-header h1 { /* Agora usando .coin-header para o nome */
+    .coin-header h1 {
         font-size: 1.5rem;
     }
     .coin-price {
@@ -795,6 +854,6 @@ body {
     }
     .chart-controls button {
         padding: 0.3em 0.6em;
-        font-size: 0.75em; /* Ajuste para telas muito pequenas */
+        font-size: 0.75em;
     }
 }
