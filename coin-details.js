@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     show: false
                 },
                 zoom: {
-                    enabled: true
+                    enabled: false
                 },
                 padding: { // Padding interno do gráfico - Adicionado um pequeno padding para garantir espaço
                     top: 10, // Pequeno padding no topo
