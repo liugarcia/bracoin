@@ -625,20 +625,20 @@ body {
     max-width: 900px;
     margin: var(--spacing-md) auto;
     background-color: var(--background-dark);
-    padding: var(--spacing-md);
+    padding: var(--spacing-md); /* Este padding pode influenciar o espaço interno do gráfico */
     border-radius: var(--border-radius);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     
-    /* AJUSTE CHAVE: Altura generosa para o gráfico */
-    height: 450px; /* Consistente com o JS agora */
+    /* **CHAVE:** Altura consistente e generosa */
+    height: 480px; /* Aumentado um pouco mais para dar folga */
     position: relative;
-    overflow: hidden; /* Importante para cortar o que excede, mas com altura maior, deve caber */
+    overflow: hidden; /* Garante que qualquer coisa que "vaze" seja cortada */
 
-    /* Garante que o conteúdo interno comece do topo */
+    /* Flexbox para garantir que o conteúdo se alinhe ao topo e preencha a largura */
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* Alinha o conteúdo (o gráfico) no topo do contêiner */
-    align-items: stretch; /* Faz com que o SVG do gráfico preencha a largura disponível */
+    justify-content: flex-start; 
+    align-items: stretch; 
 }
 
 /* Controles do Gráfico (botões) */
@@ -691,8 +691,11 @@ body {
 
 /* Estilos globais do SVG gerado pelo ApexCharts */
 #priceChart .apexcharts-canvas {
-    margin: 0 auto; /* Centraliza o gráfico dentro do contêiner se ele for menor */
+    margin: 0 auto;
     background: transparent !important;
+    /* Forçar a altura e largura para preencher o contêiner, se houver um zoom */
+    height: 100% !important; /* **NOVO** */
+    width: 100% !important; /* **NOVO** */
 }
 
 /* Cores de texto do gráfico (rótulos de eixo, título, etc.) */
