@@ -473,7 +473,9 @@ body {
 }
 
 /* Detalhes da Moeda no Modal (ou na página principal) */
-.container { /* Este seletor está em duplicidade, o de cima é mais genérico. O de cima deve ser suficiente. */
+/* Este seletor .container não está em duplicidade se for para a página de detalhes,
+   mas é bom ter certeza que ele não está sobrescrevendo o .container global de forma indesejada. */
+.container { 
     max-width: 960px;
     margin: var(--spacing-md) auto;
     padding: var(--spacing-md);
@@ -630,10 +632,17 @@ body {
     padding: var(--spacing-md);
     border-radius: var(--border-radius);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    height: 350px; /* Mantém a altura fixa para consistência */
+    
+    /* AJUSTE CHAVE AQUI: Aumentar a altura e garantir alinhamento */
+    height: 450px; /* Altere de 350px para 450px ou 500px para ter mais espaço */
     position: relative;
-    /* Adicionado: overflow hidden para garantir que nada do ApexCharts vaze */
-    overflow: hidden;
+    overflow: hidden; /* Mantém o corte se o gráfico exceder, mas com altura maior, deve caber */
+
+    /* Garante que o conteúdo interno comece do topo */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Alinha o conteúdo (o gráfico) no topo do contêiner */
+    align-items: stretch; /* Faz com que o SVG do gráfico preencha a largura disponível */
 }
 
 /* Controles do Gráfico (botões) */
@@ -685,15 +694,12 @@ body {
 /* ------------------------------------------- */
 
 /* Estilos globais do SVG gerado pelo ApexCharts */
-/* O ApexCharts cria vários elementos SVG e DIVs internamente */
 #priceChart .apexcharts-canvas {
     margin: 0 auto; /* Centraliza o gráfico dentro do contêiner se ele for menor */
-    /* Remove o background padrão do ApexCharts, usaremos o do chart-container */
     background: transparent !important;
 }
 
 /* Cores de texto do gráfico (rótulos de eixo, título, etc.) */
-/* O ApexCharts usa classes específicas, podemos sobrescrevê-las */
 .apexcharts-tooltip,
 .apexcharts-xaxis-label,
 .apexcharts-yaxis-label,
@@ -706,30 +712,20 @@ body {
 
 /* Cores das linhas de grade */
 .apexcharts-gridline {
-    stroke: var(--border-color) !important; /* Cor da borda para as linhas de grade */
-    stroke-dasharray: 2 !important; /* Para linhas pontilhadas, se desejado */
-    opacity: 0.5; /* Suaviza as linhas de grade */
+    stroke: var(--border-color) !important;
+    stroke-dasharray: 2 !important;
+    opacity: 0.5;
 }
 
 /* Cores dos eixos (as linhas dos eixos X e Y) */
 .apexcharts-xaxis-line,
 .apexcharts-yaxis-line {
-    stroke: transparent !important; /* Torna as linhas do eixo invisíveis se quiser um visual mais limpo */
+    stroke: transparent !important;
 }
-
-/* Cores das velas (candlestick) - Definidas principalmente no JS, mas podemos forçar aqui se necessário */
-/* .apexcharts-candlestick-area.apexcharts-series-0 .apexcharts-candlestick-rect.apexcharts-fill-up {
-    fill: var(--chart-upward-color) !important;
-    stroke: var(--chart-upward-color) !important;
-}
-.apexcharts-candlestick-area.apexcharts-series-0 .apexcharts-candlestick-rect.apexcharts-fill-down {
-    fill: var(--chart-downward-color) !important;
-    stroke: var(--chart-downward-color) !important;
-} */
 
 /* Estilos para o tooltip */
 .apexcharts-tooltip.apexcharts-theme-dark {
-    background: var(--card-background) !important; /* Fundo do tooltip mais escuro */
+    background: var(--card-background) !important;
     color: var(--text-light) !important;
     border: 1px solid var(--border-color) !important;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3) !important;
@@ -737,7 +733,13 @@ body {
 }
 
 .apexcharts-tooltip-series-group.apexcharts-active .apexcharts-tooltip-text {
-    color: var(--text-light) !important; /* Cor do texto no tooltip */
+    color: var(--text-light) !important;
+}
+
+/* NOVO AJUSTE: Mover os rótulos do eixo X (datestamps) para cima */
+.apexcharts-xaxis-texts-g text {
+    transform: translateY(-5px); /* Ajuste este valor. Um valor negativo move para CIMA */
+    /* font-size: 0.75rem !important; */ /* Opcional: reduzir fonte se estiver apertado */
 }
 
 /* Responsividade Aprimorada */
@@ -795,9 +797,9 @@ body {
     .modal-content {
         padding: var(--spacing-md);
     }
-    .social-links-list { /* Este seletor não está no seu HTML atual, pode ser removido */
-        justify-content: center;
-    }
+    /* .social-links-list { /* Este seletor não está no seu HTML atual, pode ser removido */
+    /* justify-content: center; */
+    /* } */
     .chart-controls {
         justify-content: center;
     }
