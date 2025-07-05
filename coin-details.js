@@ -71,7 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function renderPriceChart(ohlcData) {
         // Formatar dados para ApexCharts
-        // ApexCharts espera um array de objetos { x: timestamp, y: [open, high, low, close] }
         const seriesData = ohlcData.map(d => ({
             x: new Date(d[0]),
             y: [d[1], d[2], d[3], d[4]]
@@ -83,29 +82,29 @@ document.addEventListener('DOMContentLoaded', () => {
             }],
             chart: {
                 type: 'candlestick',
-                height: 450, // Mantenha a altura consistente com o CSS se você a aumentou
-                background: 'transparent', // Para integrar com o tema CSS
+                height: 450, // AJUSTADO: Deve corresponder à altura do .chart-container no CSS
+                background: 'transparent',
                 toolbar: {
-                    show: false // Oculta a barra de ferramentas padrão
+                    show: false
                 },
                 zoom: {
-                    enabled: true // Habilita zoom
+                    enabled: true
                 },
-                // MANTEMOS O PADDING EM 0 PARA MAXIMIZAR O ESPAÇO UTILIZÁVEL
+                // Mantenha padding em 0 para maximizar o espaço útil
                 padding: {
                     top: 0,
                     right: 0,
                     bottom: 0,
                     left: 0
                 },
-                // ADICIONADO: Ajuste vertical do gráfico
-                offsetY: -10 // Tente um valor negativo para mover o gráfico para CIMA. Ajuste este valor (e.g., -5, -10, -15)
+                // REMOVIDO: offsetY. O ajuste será feito via CSS e altura do contêiner.
+                // offsetY: -X, // Não usaremos mais esta propriedade no JS por enquanto
             },
             title: {
                 text: 'Preço da Moeda (OHLC)',
                 align: 'left',
                 style: {
-                    color: 'var(--text-light)' // Usa cor do tema CSS (corrigido para --text-light)
+                    color: 'var(--text-light)'
                 }
             },
             xaxis: {
@@ -118,16 +117,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         hour: 'HH:mm'
                     },
                     style: {
-                        colors: 'var(--text-light)' // Usa cor do tema CSS (corrigido para --text-light)
+                        colors: 'var(--text-light)'
                     },
-                    // Opcional: Ajustar offset dos rótulos do eixo X se o problema for só com eles
-                    // offsetY: 5 // Tente um valor positivo para mover os rótulos do eixo X para baixo e dar mais espaço
+                    // NÃO ADICIONE offsetY AQUI. O ajuste será feito via CSS.
                 },
                 axisBorder: {
-                    show: false // Oculta a borda do eixo X
+                    show: false
                 },
                 axisTicks: {
-                    show: false // Oculta os ticks do eixo X
+                    show: false
                 }
             },
             yaxis: {
@@ -136,64 +134,60 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 labels: {
                     formatter: function(val) {
-                        return formatCurrency(val); // Formata rótulos do eixo Y como BRL
+                        return formatCurrency(val);
                     },
                     style: {
-                        colors: 'var(--text-light)' // Usa cor do tema CSS (corrigido para --text-light)
+                        colors: 'var(--text-light)'
                     }
                 },
                 axisBorder: {
-                    show: false // Oculta a borda do eixo Y
+                    show: false
                 },
                 axisTicks: {
-                    show: false // Oculta os ticks do eixo Y
+                    show: false
                 }
             },
             plotOptions: {
                 candlestick: {
                     colors: {
-                        // Cores para velas de alta e baixa
-                        upward: '#00B746', // Verde para alta
-                        downward: '#EF403C' // Vermelho para baixa
+                        upward: '#00B746',
+                        downward: '#EF403C'
                     },
                     wick: {
-                        useFillColor: true // Fio (wick) da vela usa a cor de preenchimento
+                        useFillColor: true
                     }
                 }
             },
             tooltip: {
-                theme: 'dark', // Tema escuro para o tooltip
+                theme: 'dark',
                 x: {
-                    format: 'dd MMM HH:mm' // Formato da data no tooltip
+                    format: 'dd MMM HH:mm'
                 },
                 y: {
                     formatter: function(val) {
-                        return formatCurrency(val); // Formata valores do tooltip
+                        return formatCurrency(val);
                     }
                 }
             },
             grid: {
                 show: true,
-                borderColor: 'var(--border-color)', // Cor das linhas de grade do tema
-                strokeDashArray: 2, // Linhas pontilhadas para as grades
+                borderColor: 'var(--border-color)',
+                strokeDashArray: 2,
                 xaxis: {
                     lines: {
-                        show: false // Oculta linhas de grade verticais
+                        show: false
                     }
                 },
                 yaxis: {
                     lines: {
-                        show: true // Mostra linhas de grade horizontais
+                        show: true
                     }
                 }
             }
         };
 
-        // Se o gráfico já existe, ele é atualizado. Senão, é criado.
         if (coinChart) {
-            // Usar updateOptions para atualizar as configurações do gráfico, incluindo o padding e offset
             coinChart.updateOptions(options);
-            // E também atualizar os dados
             coinChart.updateSeries([{ data: seriesData }]);
         } else {
             coinChart = new ApexCharts(priceChartContainer, options);
@@ -209,10 +203,6 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     async function fetchChartData(coinId, days) {
         try {
-            // Para candlestick, usamos o endpoint /ohlc e precisamos mapear os dias corretamente.
-            // A API de OHLC não aceita '1' ou 'max' da mesma forma que market_chart.
-            // Para "1 dia" (24h), é melhor buscar um período um pouco maior para ter 30min de granularidade.
-            // Para 'max', '365' dias é um bom fallback para /ohlc.
             let validDays = days;
             if (days === '1') validDays = '7'; // Pegar 7 dias para ter granularidade de 30min para 24h
             if (days === 'max') validDays = '365'; // 'max' não é suportado diretamente por /ohlc
@@ -226,7 +216,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(`Erro ao buscar dados do gráfico OHLC: ${response.statusText}`);
             }
             const data = await response.json();
-            // data é um array de [timestamp, open, high, low, close]
             return data;
         } catch (error) {
             console.error('Erro ao buscar dados do gráfico OHLC:', error);
@@ -241,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {string} chartDays - O período de tempo inicial para o gráfico (padrão '1').
      */
     async function fetchCoinDetails(coinId, chartDays = '1') {
-        toggleContent(true); // Mostra o loader
+        toggleContent(true);
         try {
             const coinDetailsResponse = await fetch(`${COINGECKO_API_BASE_URL}/coins/${coinId}?localization=true&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`);
 
