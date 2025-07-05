@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }],
             chart: {
                 type: 'candlestick',
-                height: 350,
+                height: 450, // Mantenha a altura consistente com o CSS se você a aumentou
                 background: 'transparent', // Para integrar com o tema CSS
                 toolbar: {
                     show: false // Oculta a barra de ferramentas padrão
@@ -91,13 +91,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 zoom: {
                     enabled: true // Habilita zoom
                 },
-                // AJUSTE CRÍTICO AQUI: Defina todos os paddings para 0 para maximizar o espaço interno
+                // MANTEMOS O PADDING EM 0 PARA MAXIMIZAR O ESPAÇO UTILIZÁVEL
                 padding: {
                     top: 0,
                     right: 0,
                     bottom: 0,
                     left: 0
-                }
+                },
+                // ADICIONADO: Ajuste vertical do gráfico
+                offsetY: -10 // Tente um valor negativo para mover o gráfico para CIMA. Ajuste este valor (e.g., -5, -10, -15)
             },
             title: {
                 text: 'Preço da Moeda (OHLC)',
@@ -117,7 +119,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     },
                     style: {
                         colors: 'var(--text-light)' // Usa cor do tema CSS (corrigido para --text-light)
-                    }
+                    },
+                    // Opcional: Ajustar offset dos rótulos do eixo X se o problema for só com eles
+                    // offsetY: 5 // Tente um valor positivo para mover os rótulos do eixo X para baixo e dar mais espaço
                 },
                 axisBorder: {
                     show: false // Oculta a borda do eixo X
@@ -187,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Se o gráfico já existe, ele é atualizado. Senão, é criado.
         if (coinChart) {
-            // Usar updateOptions para atualizar as configurações do gráfico, incluindo o padding
+            // Usar updateOptions para atualizar as configurações do gráfico, incluindo o padding e offset
             coinChart.updateOptions(options);
             // E também atualizar os dados
             coinChart.updateSeries([{ data: seriesData }]);
@@ -319,8 +323,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inicializa a página de detalhes
     const coinId = getCoinIdFromUrl();
     if (coinId) {
-        // Ativa o botão de 24h por padrão, mas para OHLC, usaremos 7 dias inicialmente
-        // para garantir dados OHLC com granularidade adequada (30min).
         fetchCoinDetails(coinId);
     } else {
         coinDetailsContent.innerHTML = `<p style="text-align: center; color: var(--danger-color);">ID da moeda não encontrado na URL.</p>`;
