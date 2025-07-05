@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }],
             chart: {
                 type: 'candlestick',
-                height: 450, // AJUSTADO: Deve corresponder à altura do .chart-container no CSS
+                height: 500, // AJUSTADO: Deve corresponder à altura do .chart-container no CSS
                 background: 'transparent',
                 toolbar: {
                     show: false
