@@ -1,0 +1,49 @@
+{
+  "coins": [
+    {
+      "id": 1,
+      "name": "Bitcoin",
+      "symbol": "BTC",
+      "contract": "0x0555E30da8f98308EdB960aa94C0Db47230d2B9c",
+      "network": "bsc",
+      "website": "https://www.bitcoin.org/",
+      "description": "Bitcoin é o primeiro dinheiro de internet bem sucedido com base na tecnologia par-a-par em que nenhum banco ou autoridade central está envolvido na transação e produção da moeda Bitcoin. Foi criado por um indivíduo ou grupo anônimo sob o pseudônimo de Satoshi Nakamoto.",
+      "logo": "https://assets.coingecko.com/coins/images/1/standard/bitcoin.png?1696501400",
+      "socials": {
+        "twitter": "https://twitter.com/bitcoin",
+        "bitcointalk": "https://bitcointalk.org/",
+        "reddit": "https://reddit.com/r/Bitcoin"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Crap Coin Fun",
+      "symbol": "CRAPCOIN",
+      "contract": "0xb419b0215e21ea409c2c7a712103312899588f17",
+      "network": "bsc",
+      "website": "https://www.binance.com/pt-BR/bnb",
+      "description": "Criptomoeda da Binance Smart Chain.",
+      "logo": "https://bscscan.com/token/images/babydoge_32.png",
+      "socials": {
+        "twitter": "https://twitter.com/binance",
+        "telegram": "",
+        "discord": ""
+      }
+    },
+    {
+      "id": 3,
+      "name": "Solana",
+      "symbol": "SOL",
+      "contract": "So11111111111111111111111111111111111111112",
+      "network": "solana",
+      "website": "https://solana.com/",
+      "description": "Blockchain de alta performance para aplicações descentralizadas.",
+      "logo": "https://assets.coingecko.com/coins/images/4128/small/solana.png?1696504780",
+      "socials": {
+        "twitter": "https://twitter.com/solana",
+        "telegram": "",
+        "discord": ""
+      }
+    }
+  ]
+}
