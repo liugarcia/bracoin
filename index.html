@@ -3,166 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CryptoList - Listagem de Criptomoedas</title>
+    <title>CryptoList - Monitoramento de Criptomoedas</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <header>
+    <header class="main-header">
         <div class="container">
-            <h1><i class="fas fa-coins"></i> CryptoList</h1>
-            <p>Monitoramento de criptomoedas com dados em tempo real</p>
+            <div class="header-content">
+                <a href="#" class="logo">
+                    <i class="fas fa-coins"></i> CryptoList
+                </a>
+                <nav class="main-nav">
+                    <ul id="mainTabs">
+                        <li><a href="#" class="tab-link active" data-tab="top100"><i class="fas fa-chart-line"></i> Top 100</a></li>
+                        <li><a href="#" class="tab-link" data-tab="trending"><i class="fas fa-fire"></i> Trending</a></li>
+                        <li><a href="#" class="tab-link" data-tab="new-listings"><i class="fas fa-star"></i> Novas Listagens</a></li>
+                        <li><a href="#" class="tab-link" data-tab="add-coin"><i class="fas fa-plus-circle"></i> Adicionar Moeda</a></li>
+                    </ul>
+                </nav>
+                <div class="search-box">
+                    <input type="text" id="globalSearch" placeholder="Buscar moedas...">
+                    <button aria-label="Buscar"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
         </div>
     </header>
 
-    <nav>
-        <div class="container">
-            <ul id="mainTabs">
-                <li><a href="#" class="tab-link active" data-tab="trending"><i class="fas fa-fire"></i> Trending</a></li>
-                <li><a href="#" class="tab-link" data-tab="new-listings"><i class="fas fa-star"></i> Novas Listagens</a></li>
-                <li><a href="#" class="tab-link" data-tab="add-coin"><i class="fas fa-plus-circle"></i> Adicionar Moeda</a></li>
-            </ul>
-            <div class="search-box">
-                <input type="text" id="globalSearch" placeholder="Buscar moedas...">
-                <button><i class="fas fa-search"></i></button>
+    <main class="container main-content-area">
+        <div id="top100" class="tab-content active">
+            <div class="section-header">
+                <h2><i class="fas fa-chart-line"></i> Top 100 Moedas por Capitalização de Mercado</h2>
+                <button id="refreshTop100" class="btn-primary-outline"><i class="fas fa-sync-alt"></i> Atualizar</button>
+            </div>
+            <div class="card table-card">
+                <div class="table-responsive">
+                    <table id="top100Table" class="coin-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Moeda</th>
+                                <th>Preço</th>
+                                <th>24h</th>
+                                <th>Capitalização de Mercado</th>
+                                <th>Volume 24h</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="top100TableBody">
+                            </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-    </nav>
 
-    <main class="container">
-        <!-- Conteúdo das abas -->
-        <div id="trending" class="tab-content active">
-            <div class="tab-header">
+        <div id="trending" class="tab-content">
+            <div class="section-header">
                 <h2><i class="fas fa-fire"></i> Moedas em Alta (Maior Volume 24h)</h2>
-                <button id="refreshTrending" class="btn-refresh"><i class="fas fa-sync-alt"></i> Atualizar</button>
+                <button id="refreshTrending" class="btn-primary-outline"><i class="fas fa-sync-alt"></i> Atualizar</button>
             </div>
-            <div class="table-responsive">
-                <table id="trendingTable">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Moeda</th>
-                            <th>Preço</th>
-                            <th>24h</th>
-                            <th>Volume 24h</th>
-                            <th>Liquidez</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="trendingTableBody">
-                        <!-- Dados serão carregados via JavaScript -->
-                    </tbody>
-                </table>
+            <div class="card table-card">
+                <div class="table-responsive">
+                    <table id="trendingTable" class="coin-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Moeda</th>
+                                <th>Preço</th>
+                                <th>24h</th>
+                                <th>Volume 24h</th>
+                                <th>Liquidez</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trendingTableBody">
+                            </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
         <div id="new-listings" class="tab-content">
-            <div class="tab-header">
+            <div class="section-header">
                 <h2><i class="fas fa-star"></i> Novas Listagens</h2>
                 <span>Últimas 20 moedas adicionadas</span>
             </div>
-            <div class="table-responsive">
-                <table id="newListingsTable">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Moeda</th>
-                            <th>Preço</th>
-                            <th>24h</th>
-                            <th>Adicionada em</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="newListingsTableBody">
-                        <!-- Dados serão carregados via JavaScript -->
-                    </tbody>
-                </table>
+            <div class="card table-card">
+                <div class="table-responsive">
+                    <table id="newListingsTable" class="coin-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Moeda</th>
+                                <th>Preço</th>
+                                <th>24h</th>
+                                <th>Adicionada em</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="newListingsTableBody">
+                            </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
         <div id="add-coin" class="tab-content">
-            <div class="tab-header">
+            <div class="section-header">
                 <h2><i class="fas fa-plus-circle"></i> Adicionar Nova Moeda</h2>
                 <span>Preencha todos os campos para listar sua moeda</span>
             </div>
-
-            <form id="coinForm">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="coinName"><i class="fas fa-tag"></i> Nome da Moeda:</label>
-                        <input type="text" id="coinName" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="coinSymbol"><i class="fas fa-code"></i> Símbolo:</label>
-                        <input type="text" id="coinSymbol" required>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="coinContract"><i class="fas fa-file-contract"></i> Contrato:</label>
-                        <input type="text" id="coinContract" required placeholder="0x...">
-                    </div>
-                    <div class="form-group">
-                        <label for="coinNetwork"><i class="fas fa-link"></i> Blockchain:</label>
-                        <select id="coinNetwork" required>
-                            <option value="">Selecione...</option>
-                            <option value="eth">Ethereum</option>
-                            <option value="bsc">Binance Smart Chain</option>
-                            <option value="polygon">Polygon</option>
-                            <option value="avax">Avalanche</option>
-                            <option value="arbitrum">Arbitrum</option>
-                            <option value="optimism">Optimism</option>
-                            <option value="solana">Solana</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="coinWebsite"><i class="fas fa-globe"></i> Website:</label>
-                    <input type="url" id="coinWebsite" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="coinDescription"><i class="fas fa-align-left"></i> Descrição:</label>
-                    <textarea id="coinDescription" rows="3" required></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="coinLogo"><i class="fas fa-image"></i> URL do Logo:</label>
-                    <input type="url" id="coinLogo" required>
-                </div>
-
-                <div class="form-group">
-                    <label><i class="fas fa-share-alt"></i> Redes Sociais:</label>
-                    <div class="social-inputs">
-                        <div class="social-input">
-                            <i class="fab fa-twitter"></i>
-                            <input type="url" id="coinTwitter" placeholder="https://twitter.com/...">
+            <div class="card form-card">
+                <form id="coinForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="coinName"><i class="fas fa-tag"></i> Nome da Moeda:</label>
+                            <input type="text" id="coinName" required>
                         </div>
-                        <div class="social-input">
-                            <i class="fab fa-telegram"></i>
-                            <input type="url" id="coinTelegram" placeholder="https://t.me/...">
-                        </div>
-                        <div class="social-input">
-                            <i class="fab fa-discord"></i>
-                            <input type="url" id="coinDiscord" placeholder="https://discord.gg/...">
+                        <div class="form-group">
+                            <label for="coinSymbol"><i class="fas fa-code"></i> Símbolo:</label>
+                            <input type="text" id="coinSymbol" required>
                         </div>
                     </div>
-                </div>
 
-                <button type="submit" class="btn-submit"><i class="fas fa-save"></i> Adicionar Moeda</button>
-            </form>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="coinContract"><i class="fas fa-file-contract"></i> Contrato:</label>
+                            <input type="text" id="coinContract" required placeholder="0x...">
+                        </div>
+                        <div class="form-group">
+                            <label for="coinNetwork"><i class="fas fa-link"></i> Blockchain:</label>
+                            <select id="coinNetwork" required>
+                                <option value="">Selecione...</option>
+                                <option value="eth">Ethereum</option>
+                                <option value="bsc">Binance Smart Chain</option>
+                                <option value="polygon">Polygon</option>
+                                <option value="avax">Avalanche</option>
+                                <option value="arbitrum">Arbitrum</option>
+                                <option value="optimism">Optimism</option>
+                                <option value="solana">Solana</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="coinWebsite"><i class="fas fa-globe"></i> Website:</label>
+                        <input type="url" id="coinWebsite" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="coinDescription"><i class="fas fa-align-left"></i> Descrição:</label>
+                        <textarea id="coinDescription" rows="3" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="coinLogo"><i class="fas fa-image"></i> URL do Logo:</label>
+                        <input type="url" id="coinLogo" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-share-alt"></i> Redes Sociais:</label>
+                        <div class="social-inputs">
+                            <div class="social-input">
+                                <i class="fab fa-twitter"></i>
+                                <input type="url" id="coinTwitter" placeholder="https://twitter.com/...">
+                            </div>
+                            <div class="social-input">
+                                <i class="fab fa-telegram"></i>
+                                <input type="url" id="coinTelegram" placeholder="https://t.me/...">
+                            </div>
+                            <div class="social-input">
+                                <i class="fab fa-discord"></i>
+                                <input type="url" id="coinDiscord" placeholder="https://discord.gg/...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Adicionar Moeda</button>
+                </form>
+            </div>
         </div>
 
-        <!-- Modal de detalhes da moeda -->
         <div id="coinDetailModal" class="modal">
             <div class="modal-content large">
                 <span class="close">&times;</span>
                 <div id="coinDetailContent">
-                    <!-- Conteúdo será carregado via JavaScript -->
-                </div>
+                    </div>
             </div>
         </div>
     </main>
@@ -172,19 +199,19 @@
         <p>Carregando dados...</p>
     </div>
 
-    <footer>
+    <footer class="main-footer">
         <div class="container">
             <p>&copy; 2023 CryptoList. Dados via GeckoTerminal API.</p>
-            <div class="social-links">
-                <a href="#"><i class="fab fa-twitter"></i></a>
-                <a href="#"><i class="fab fa-telegram"></i></a>
-                <a href="#"><i class="fab fa-discord"></i></a>
-                 <a href="#"><i class="fab fa-reddit"></i></a>
+            <div class="footer-social-links">
+                <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                <a href="#" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
+                <a href="#" aria-label="Discord"><i class="fab fa-discord"></i></a>
+                <a href="#" aria-label="Reddit"><i class="fab fa-reddit"></i></a>
             </div>
         </div>
     </footer>
-    
 
+    <script src="top.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
