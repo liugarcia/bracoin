@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     show: false
                 },
                 zoom: {
-                    enabled: true
+                    enabled: false
                 },
                 // AJUSTE CRÍTICO AQUI: padding para o gráfico
                 padding: {
