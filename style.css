@@ -19,7 +19,7 @@
     --spacing-sm: 1rem;
     --spacing-md: 1.5rem;
     --spacing-lg: 2rem;
-    --spacing-xl: 3rem; /* Novo: Adicionado para espaçamentos maiores, se necessário */
+    --spacing-xl: 3rem;
 
     /* Outros */
     --border-radius: 8px;
@@ -35,14 +35,14 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Preferência por Inter, se puder importar */
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
     background-color: var(--background-dark);
     color: var(--text-light);
     line-height: 1.6;
-    min-height: 100vh; /* Garante que o footer fique no final da página */
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
 }
@@ -51,14 +51,14 @@ body {
     width: 95%;
     max-width: 1400px;
     margin: 0 auto;
-    padding: 0 var(--spacing-sm); /* Padding horizontal reduzido */
+    padding: 0 var(--spacing-sm);
 }
 
 /* Header */
 .main-header {
-    background-color: var(--card-background); /* Fundo sólido, mais limpo */
+    background-color: var(--card-background);
     padding: var(--spacing-sm) 0;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Sombra mais escura */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -68,14 +68,14 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap; /* Para responsividade */
+    flex-wrap: wrap;
     gap: var(--spacing-sm);
 }
 
 .main-header .logo {
     font-size: 1.8rem;
     font-weight: 700;
-    color: white; /* Logo sempre branco/claro */
+    color: white;
     text-decoration: none;
     display: flex;
     align-items: center;
@@ -83,7 +83,7 @@ body {
 }
 
 .main-header .logo i {
-    color: var(--primary-color); /* Ícone com cor de destaque */
+    color: var(--primary-color);
 }
 
 /* Navegação */
@@ -95,7 +95,7 @@ body {
 
 .main-nav ul li a {
     text-decoration: none;
-    color: var(--text-muted); /* Cor de texto padrão para links da nav */
+    color: var(--text-muted);
     padding: 0.6rem var(--spacing-sm);
     border-radius: var(--border-radius);
     transition: all var(--transition-speed) ease;
@@ -117,9 +117,9 @@ body {
     display: flex;
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
-    overflow: hidden; /* Garante que os cantos arredondados funcionem */
-    flex-grow: 1; /* Permite que ocupe espaço disponível */
-    max-width: 300px; /* Limita o tamanho em telas maiores */
+    overflow: hidden;
+    flex-grow: 1;
+    max-width: 300px;
 }
 
 .search-box input {
@@ -151,7 +151,7 @@ body {
 
 /* Main Content Area */
 .main-content-area {
-    flex: 1; /* Permite que ocupe o espaço restante, empurrando o footer para baixo */
+    flex: 1;
     padding-top: var(--spacing-lg);
     padding-bottom: var(--spacing-lg);
 }
@@ -162,7 +162,7 @@ body {
     border-radius: var(--border-radius);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     padding: var(--spacing-md);
-    margin-bottom: var(--spacing-md); /* Espaçamento entre cards */
+    margin-bottom: var(--spacing-md);
 }
 
 /* Conteúdo das abas */
@@ -191,7 +191,7 @@ body {
 
 .section-header h2 {
     color: var(--text-light);
-    font-size: 1.5rem; /* Um pouco maior */
+    font-size: 1.5rem;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -209,7 +209,7 @@ body {
     font-size: 1rem;
     cursor: pointer;
     transition: all var(--transition-speed) ease;
-    display: inline-flex; /* Para alinhar ícones */
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
@@ -239,41 +239,38 @@ body {
 }
 
 /* Tabelas de Moedas */
-/* Adicionado container para rolagem horizontal em telas pequenas */
 .table-responsive {
     width: 100%;
-    overflow-x: auto; /* Permite rolagem horizontal */
-    -webkit-overflow-scrolling: touch; /* Suaviza rolagem em iOS */
-    border-radius: var(--border-radius); /* Aplica borda ao container da tabela */
-    border: 1px solid var(--border-color); /* Adiciona borda ao redor da tabela */
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
 }
 
 .coin-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.9rem;
-    min-width: 600px; /* Garante que a tabela tenha uma largura mínima para a rolagem */
+    min-width: 600px;
 }
 
 .coin-table th, .coin-table td {
-    padding: 0.8rem var(--spacing-sm); /* Mais espaçamento interno */
+    padding: 0.8rem var(--spacing-sm);
     text-align: left;
-    border-bottom: 1px solid var(--border-color); /* Borda sutil */
-    /* white-space: nowrap; Removido para permitir quebra de linha em colunas específicas se necessário,
-                          mas mantido para células que precisam ser nowrap, como símbolo ou preço */
+    border-bottom: 1px solid var(--border-color);
 }
 
 .coin-table th {
-    background-color: var(--card-background); /* Fundo do cabeçalho igual ao card */
+    background-color: var(--card-background);
     font-weight: 600;
-    color: var(--text-muted); /* Cor de texto mais suave para o cabeçalho */
+    color: var(--text-muted);
     position: sticky;
-    top: 0; /* Fixa o cabeçalho ao rolar */
-    z-index: 10; /* Garante que o cabeçalho esteja acima do conteúdo da tabela */
+    top: 0;
+    z-index: 10;
 }
 
 .coin-table tbody tr:hover {
-    background-color: rgba(255, 255, 255, 0.05); /* Efeito de hover mais suave */
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
 /* Ajustes de largura para colunas específicas */
@@ -285,7 +282,6 @@ body {
 .coin-table th:nth-child(6), .coin-table td:nth-child(6) { width: 180px; white-space: nowrap; } /* Cap. Mercado */
 .coin-table th:nth-child(7), .coin-table td:nth-child(7) { width: 100px; text-align: center; } /* Ação */
 
-
 .coin-cell {
     display: flex;
     align-items: center;
@@ -294,7 +290,7 @@ body {
 }
 
 .coin-logo {
-    width: 28px; /* Ícones um pouco maiores */
+    width: 28px;
     height: 28px;
     border-radius: 50%;
     object-fit: contain;
@@ -308,7 +304,7 @@ body {
 .coin-symbol {
     color: var(--text-muted);
     font-size: 0.8rem;
-    text-transform: uppercase; /* Símbolo em maiúsculas */
+    text-transform: uppercase;
 }
 
 .price-change {
@@ -320,12 +316,12 @@ body {
 }
 
 .price-change.positive {
-    background-color: rgba(var(--success-color-rgb), 0.15); /* Verde com opacidade */
+    background-color: rgba(var(--success-color-rgb), 0.15);
     color: var(--success-color);
 }
 
 .price-change.negative {
-    background-color: rgba(var(--danger-color-rgb), 0.15); /* Vermelho com opacidade */
+    background-color: rgba(var(--danger-color-rgb), 0.15);
     color: var(--danger-color);
 }
 
@@ -337,7 +333,7 @@ body {
 .btn-action {
     background: none;
     border: none;
-    color: var(--text-muted); /* Cor neutra para ações */
+    color: var(--text-muted);
     cursor: pointer;
     padding: 0.25rem;
     font-size: 0.9rem;
@@ -348,13 +344,13 @@ body {
 }
 
 .btn-action:hover {
-    color: var(--primary-color); /* Realce ao passar o mouse */
+    color: var(--primary-color);
 }
 
 /* Formulário */
 .form-card {
     max-width: 800px;
-    margin: var(--spacing-lg) auto; /* Centraliza o card do formulário com margem superior/inferior */
+    margin: var(--spacing-lg) auto;
 }
 
 .form-row {
@@ -388,7 +384,7 @@ body {
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     font-size: 1rem;
-    background-color: var(--background-dark); /* Fundo escuro para inputs */
+    background-color: var(--background-dark);
     color: var(--text-light);
     transition: border-color var(--transition-speed);
 }
@@ -421,36 +417,36 @@ body {
     color: var(--text-muted);
 }
 
-/* Modal (Detalhes da Moeda) - Estilos unificados e corrigidos */
+/* Modal (Detalhes da Moeda) */
 .modal {
-    display: none; /* Controlado por JS */
+    display: none;
     position: fixed;
     z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7); /* Fundo mais escuro */
+    background-color: rgba(0, 0, 0, 0.7);
     overflow: auto;
-    display: flex; /* Para centralizar o modal */
+    display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .modal-content {
     background-color: var(--card-background);
-    margin: auto; /* Centraliza o modal */
+    margin: auto;
     padding: var(--spacing-lg);
     border-radius: var(--border-radius);
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
     width: 90%;
-    max-width: 700px; /* Reduz um pouco o max-width */
+    max-width: 700px;
     position: relative;
     animation: modalopen var(--transition-speed);
 }
 
 .modal-content.large {
-    max-width: 900px; /* Aumenta para a versão large */
+    max-width: 900px;
 }
 
 @keyframes modalopen {
@@ -462,7 +458,7 @@ body {
     position: absolute;
     top: 1rem;
     right: 1.5rem;
-    font-size: 2rem; /* Ícone de fechar maior */
+    font-size: 2rem;
     color: var(--text-muted);
     cursor: pointer;
     transition: color var(--transition-speed);
@@ -472,123 +468,187 @@ body {
     color: var(--danger-color);
 }
 
-/* Detalhes da Moeda no Modal */
-/* Renomeado de .coin-header para .coin-detail-header para evitar conflitos */
-.coin-detail-header {
+/* Detalhes da Moeda no Modal (ou na página principal) */
+.container {
+    max-width: 960px;
+    margin: var(--spacing-md) auto;
+    padding: var(--spacing-md);
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.coin-header {
     display: flex;
     align-items: center;
-    gap: var(--spacing-md);
     margin-bottom: var(--spacing-md);
-    border-bottom: 1px solid var(--border-color); /* Linha divisória */
-    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: var(--spacing-sm);
 }
-.coin-detail-header img { /* Renomeado de .coin-header img para .coin-detail-logo */
-    width: 72px; /* Logo maior no modal */
-    height: 72px;
-    margin-right: 15px; /* Ajustado para gap */
+
+.coin-header img {
+    width: 50px;
+    height: 50px;
+    margin-right: var(--spacing-sm);
     border-radius: 50%;
-    object-fit: contain;
 }
-.coin-detail-header h1 { /* Renomeado de .coin-header h1 */
-    font-size: 2rem; /* Nome da moeda maior */
-    font-weight: 700;
-    color: var(--text-light); /* Corrigido para var(--text-light) */
+
+.coin-header h1 {
+    font-size: 1.8em;
+    color: var(--text-light);
     margin: 0;
     display: flex;
     align-items: baseline;
-    gap: 10px; /* Adicionado gap para alinhamento */
+    gap: 8px;
+    /* Adicionado para que o nome não quebre tão fácil */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: calc(100% - 70px); /* Ajuste com base na largura da imagem + margin */
 }
-.coin-detail-header .coin-symbol { /* Renomeado de .coin-header .coin-symbol */
-    background-color: var(--background-dark); /* Fundo mais escuro para o símbolo */
+
+.coin-header .coin-symbol {
+    font-size: 0.8em;
     color: var(--text-muted);
-    padding: 0.3rem 0.7rem;
-    border-radius: 6px; /* Bordas mais arredondadas */
-    font-size: 1rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    margin-left: 0; /* Removido margin-left para usar gap */
+    background-color: var(--background-dark);
+    padding: 0.2em 0.5em;
+    border-radius: 4px;
+    font-weight: 500;
+    white-space: nowrap; /* Garante que o símbolo não quebre */
 }
-.coin-detail-price { /* Renomeado de .coin-price */
-    font-size: 2.5rem; /* Preço bem grande */
-    font-weight: 700;
-    margin: 0.5rem 0;
-    color: var(--text-light); /* Corrigido para var(--text-light) */
+
+.coin-price {
+    font-size: 2.2em;
+    font-weight: bold;
+    margin-bottom: var(--spacing-xs);
+    color: var(--text-light);
 }
-.price-change-24h { /* Renomeado de .price-change-24h */
-    font-size: 1.2em;
-    margin-bottom: var(--spacing-md); /* Usando variável de espaçamento */
+
+.price-change-24h {
+    font-size: 1em;
+    margin-bottom: var(--spacing-md);
 }
-/* .price-change.positive e .price-change.negative já existem e estão corretos */
-.coin-detail-stats { /* Renomeado de .coin-stats */
+
+.coin-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Mais colunas, itens menores */
+    /* Ajuste o minmax para dar mais espaço, ou reduza o gap */
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Aumentado para 180px */
     gap: var(--spacing-sm);
-    margin: var(--spacing-md) 0;
+    margin-bottom: var(--spacing-lg);
 }
-.stat-card { /* Renomeado de .stat-item */
-    background-color: var(--background-dark); /* Fundo mais escuro para stats */
+
+.stat-item {
+    background-color: var(--background-dark);
     padding: var(--spacing-sm);
     border-radius: var(--border-radius);
-    border: 1px solid var(--border-color); /* Borda sutil */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Sombra mais suave */
+    box-shadow: none;
+    border: 1px solid var(--border-color);
 }
-.stat-label { /* Renomeado de .stat-item strong */
-    font-size: 0.8rem;
+
+.stat-item strong {
+    display: block;
+    font-size: 0.85em; /* Ligeiramente menor para economizar espaço */
+    margin-bottom: 0.2em; /* Menos margem */
     color: var(--text-muted);
-    margin-bottom: 0.5rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    display: block; /* Garante que seja um bloco */
+    white-space: nowrap; /* Evita quebra de linha nas labels */
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-.stat-value { /* Renomeado de .stat-item span */
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--text-light); /* Corrigido para var(--text-light) */
+
+.stat-item span {
+    font-size: 1.05em; /* Ligeiramente menor */
+    font-weight: 600;
+    color: var(--text-light);
+    word-wrap: break-word; /* Permite quebra de palavra para valores longos */
+    display: block; /* Garante que o span ocupe seu próprio espaço */
 }
+
 .coin-description {
-    margin-bottom: var(--spacing-md); /* Usando variável de espaçamento */
+    margin-bottom: var(--spacing-lg);
 }
+
 .coin-description h2 {
-    color: var(--text-light); /* Corrigido para var(--text-light) */
-    margin-bottom: 0.75rem; /* Usando variável de espaçamento */
-    font-size: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    color: var(--text-light);
+    margin-bottom: var(--spacing-sm);
+    font-size: 1.5em;
 }
+
 .coin-description p {
-    line-height: 1.7; /* Aumenta um pouco o line-height para melhor legibilidade */
-    color: var(--text-muted); /* Texto da descrição mais suave */
+    line-height: 1.6;
+    color: var(--text-muted);
+    font-size: 0.95em;
 }
 
-/* Gráfico */
-.chart-container {
-    margin: var(--spacing-md) 0;
-    height: 350px; /* Gráfico um pouco mais alto */
-    background-color: var(--background-dark); /* Fundo do gráfico */
+.social-links {
+    margin-bottom: var(--spacing-lg);
+}
+
+.social-links h2 {
+    color: var(--text-light);
+    margin-bottom: var(--spacing-sm);
+    font-size: 1.5em;
+}
+
+.social-links a {
+    display: inline-flex;
+    align-items: center;
+    background-color: rgba(var(--primary-color-rgb), 0.15);
+    color: var(--primary-color);
+    padding: 0.6em 1em;
     border-radius: var(--border-radius);
-    padding: var(--spacing-sm);
+    text-decoration: none;
+    margin-right: var(--spacing-xs);
+    margin-bottom: var(--spacing-xs);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    font-size: 0.9em;
+    font-weight: 500;
+    white-space: nowrap; /* Evita quebras de linha em links curtos */
 }
 
-/* Controles do Gráfico (botões 24h, 7d, etc.) */
+.social-links a:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.social-links i {
+    margin-right: 0.5em;
+    font-size: 1em;
+}
+
+/* Contêiner do Gráfico */
+.chart-container {
+    width: 100%;
+    max-width: 900px;
+    margin: var(--spacing-md) auto;
+    background-color: var(--background-dark);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    height: 350px; /* Mantém a altura fixa para consistência */
+    position: relative; /* Adicionado para posicionamento absoluto, se necessário */
+}
+
+/* Controles do Gráfico (botões) */
 .chart-controls {
     display: flex;
     justify-content: center;
     gap: var(--spacing-xs);
-    margin-top: var(--spacing-md);
     margin-bottom: var(--spacing-md);
-    flex-wrap: wrap; /* Para quebrar linha em telas menores */
+    flex-wrap: wrap;
 }
 
 .chart-controls button {
     background-color: var(--background-dark);
     color: var(--text-muted);
     border: 1px solid var(--border-color);
-    padding: 0.5rem 1rem;
+    padding: 0.4em 0.8em;
     border-radius: var(--border-radius);
     cursor: pointer;
-    font-size: 0.9rem;
     transition: all var(--transition-speed) ease;
+    font-size: 0.85em; /* Ligeiramente menor */
+    white-space: nowrap; /* Garante que os rótulos dos botões não quebrem */
 }
 
 .chart-controls button:hover {
@@ -603,117 +663,16 @@ body {
     border-color: var(--primary-color);
 }
 
-
-/* Social Links no Modal */
-.social-links-container { /* Renomeado de .social-links */
-    margin: var(--spacing-md) 0;
-}
-
-.social-links-container h2 { /* Renomeado de .social-links h2 */
-    color: var(--text-light); /* Corrigido para var(--text-light) */
-    margin-bottom: 0.75rem; /* Usando variável de espaçamento */
-    font-size: 1.5rem;
-}
-
-.social-links-list { /* Adicionado para envolver os links */
-    display: flex;
-    flex-wrap: wrap; /* Para quebrar linha em telas menores */
-    gap: var(--spacing-sm);
-}
-
-.social-link { /* Renomeado de .social-links a */
-    display: inline-flex; /* Alterado de flex para inline-flex para melhor ajuste de linha */
-    align-items: center;
-    gap: 8px;
-    color: var(--primary-color);
-    text-decoration: none;
-    padding: 0.6rem 1rem;
-    border-radius: var(--border-radius);
-    background-color: rgba(var(--primary-color-rgb), 0.1); /* Fundo sutil com base na cor primária */
-    transition: all var(--transition-speed);
-    font-size: 0.9rem;
-    margin-right: 0; /* Removido para usar gap no pai */
-    margin-bottom: 0; /* Removido para usar gap no pai */
-}
-
-.social-link:hover {
-    background-color: var(--primary-color);
-    color: white;
-}
-.social-link i { /* Renomeado de .social-links i */
-    margin-right: 0; /* Removido para usar gap */
-}
-
-/* Footer */
-.main-footer {
-    background-color: var(--card-background); /* Cor de fundo igual aos cards */
-    color: var(--text-muted);
-    padding: var(--spacing-lg) 0;
-    text-align: center;
-    margin-top: auto; /* Empurra o footer para o final da página */
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2); /* Sombra na parte superior do footer */
-}
-
-.footer-social-links {
-    margin-top: var(--spacing-sm);
-    display: flex;
-    justify-content: center;
-    gap: var(--spacing-md);
-}
-
-.footer-social-links a {
-    color: var(--text-muted);
-    font-size: 1.4rem;
-    transition: color var(--transition-speed);
-}
-
-.footer-social-links a:hover {
-    color: var(--primary-color);
-}
-
 /* Loader */
-.loader-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.85); /* Fundo mais escuro */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    color: white;
-    font-size: 1.2em;
-    flex-direction: column;
-    gap: var(--spacing-xs);
-}
-
-.loader-spinner {
-    border: 4px solid var(--border-color);
-    border-top: 4px solid var(--primary-color);
-    border-radius: 50%;
-    width: 50px; /* Maior */
-    height: 50px;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Estilos para o loader específico da página de detalhes */
 #coinDetailsLoader {
-    display: flex; /* Garante que o loader está flex */
-    flex-direction: column; /* Organiza conteúdo verticalmente */
+    display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    min-height: 300px; /* Altura mínima para o loader aparecer centralizado na área de conteúdo */
-    font-size: 1.2em;
+    min-height: 250px;
+    font-size: 1.1em;
     color: var(--primary-color);
 }
-
 
 ---
 ### Responsividade Aprimorada
@@ -734,72 +693,74 @@ body {
         width: 100%;
         max-width: none;
     }
-    /* Tabela: Em telas médias, a rolagem horizontal já é ativada pelo .table-responsive */
 }
 
 @media (max-width: 768px) {
     .main-nav ul {
         flex-wrap: wrap;
-        justify-content: center; /* Centraliza itens da nav quando quebra */
+        justify-content: center;
     }
     .main-nav ul li a {
-        padding: 0.5rem var(--spacing-sm); /* Ajusta padding */
+        padding: 0.5rem var(--spacing-sm);
         font-size: 0.85rem;
     }
     .section-header {
         flex-direction: column;
         align-items: flex-start;
-        text-align: left; /* Garante alinhamento à esquerda */
+        text-align: left;
     }
     .section-header h2 {
-        font-size: 1.3rem; /* Reduz o tamanho do título da seção */
+        font-size: 1.3rem;
     }
     .form-row {
         flex-direction: column;
-        gap: 0; /* O gap entre form-group já é tratado por margin-bottom */
+        gap: 0;
     }
-    .coin-detail-header {
-        flex-direction: column;
-        align-items: flex-start;
-        text-align: left;
+    /* Removido .coin-detail-header e seus sub-elementos para evitar duplicação */
+    /* Usaremos .coin-header existente para simplicidade */
+
+    .coin-header h1 {
+        font-size: 1.6em;
+        white-space: normal; /* Permite que o nome quebre em telas menores */
+        max-width: 100%;
     }
-    .coin-detail-name {
-        font-size: 1.75rem;
+    .coin-price {
+        font-size: 1.8em;
     }
-    .coin-detail-price {
-        font-size: 2rem;
-    }
-    .coin-detail-stats {
+    .coin-stats {
         grid-template-columns: 1fr 1fr; /* Duas colunas */
     }
+    .stat-item strong {
+        white-space: normal; /* Permite que o label da estatística quebre */
+    }
     .modal-content {
-        padding: var(--spacing-md); /* Reduz padding do modal */
+        padding: var(--spacing-md);
     }
     .social-links-list {
-        justify-content: center; /* Centraliza links sociais em telas menores */
+        justify-content: center;
     }
     .chart-controls {
-        justify-content: center; /* Centraliza os botões do gráfico */
+        justify-content: center;
     }
 }
 
 @media (max-width: 480px) {
     .main-header .logo {
-        font-size: 1.5rem; /* Logo menor */
+        font-size: 1.5rem;
     }
     .main-nav ul {
-        gap: var(--spacing-xs); /* Mantém gap, mas permite quebra de linha */
+        gap: var(--spacing-xs);
     }
     .main-nav ul li a {
-        font-size: 0.8rem; /* Links da nav ainda menores */
+        font-size: 0.8rem;
         padding: 0.3rem 0.6rem;
     }
     .container {
-        padding: 0 var(--spacing-xs); /* Padding horizontal ainda menor */
+        padding: 0 var(--spacing-xs);
     }
     .coin-table th, .coin-table td {
-        padding: 0.6rem var(--spacing-xs); /* Padding da tabela mais apertado */
-        font-size: 0.8rem; /* Texto da tabela menor */
+        padding: 0.6rem var(--spacing-xs);
+        font-size: 0.8rem;
     }
     .coin-logo {
         width: 24px;
@@ -815,21 +776,25 @@ body {
         font-size: 0.75rem;
         padding: 0.15rem 0.4rem;
     }
-    .coin-detail-stats {
+    .coin-stats {
         grid-template-columns: 1fr; /* Uma coluna */
     }
     .modal-content {
         width: 95%;
         padding: var(--spacing-md);
     }
-    .coin-detail-name {
+    .coin-header h1 { /* Agora usando .coin-header para o nome */
         font-size: 1.5rem;
     }
-    .coin-detail-price {
+    .coin-price {
         font-size: 1.8rem;
     }
-    .social-link {
+    .social-links a {
         font-size: 0.8rem;
         padding: 0.4rem 0.8rem;
+    }
+    .chart-controls button {
+        padding: 0.3em 0.6em;
+        font-size: 0.75em; /* Ajuste para telas muito pequenas */
     }
 }
