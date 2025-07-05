@@ -1,5 +1,3 @@
-// coin-details.js
-
 document.addEventListener('DOMContentLoaded', () => {
     const coinDetailsLoader = document.getElementById('coinDetailsLoader');
     const coinDetailsContent = document.getElementById('coinDetailsContent');
@@ -69,15 +67,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Desenha o gráfico de preços usando Chart.js.
+     * Desenha o gráfico de preços usando Chart.js com ajustes de design.
      * @param {Array<Array<number>>} prices - Array de arrays, onde cada sub-array é [timestamp, price].
      * @param {string} coinId - O ID da moeda para determinar a cor da linha.
      */
     function renderPriceChart(prices, coinId) {
         // Formatar dados para Chart.js
-        // Ajustar a formatação da data/hora para português
         const labels = prices.map(p => new Date(p[0]).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }));
         const data = prices.map(p => p[1]);
+
+        // Determinar a cor da linha com base na variação do último preço vs primeiro
+        const firstPrice = data.length > 0 ? data[0] : 0;
+        const lastPrice = data.length > 0 ? data[data.length - 1] : 0;
+        const lineColor = lastPrice >= firstPrice ? 'rgb(0, 200, 83)' : 'rgb(255, 0, 0)'; // Verde para alta, Vermelho para baixa
 
         // Destruir gráfico anterior se existir
         if (coinChart) {
@@ -92,18 +94,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 datasets: [{
                     label: `Preço (${VS_CURRENCY.toUpperCase()})`, // Rótulo do gráfico em BRL
                     data: data,
-                    borderColor: 'rgb(75, 192, 192)', // Cor da linha padrão
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)', // Cor de fundo abaixo da linha
+                    borderColor: lineColor, // Cor da linha dinâmica
+                    backgroundColor: function(context) {
+                        const chart = context.chart;
+                        const {ctx, chartArea} = chart;
+                        if (!chartArea) {
+                            // Este caso acontece no carregamento inicial do gráfico
+                            return;
+                        }
+                        const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+                        // Ajuste as cores do gradiente para combinar com a linha
+                        const startColor = lineColor.replace('rgb', 'rgba').replace(')', ', 0.1)'); // Levemente transparente na base
+                        const endColor = lineColor.replace('rgb', 'rgba').replace(')', ', 0.4)'); // Mais opaco no topo
+                        gradient.addColorStop(0, startColor);
+                        gradient.addColorStop(1, endColor);
+                        return gradient;
+                    },
                     fill: true,
-                    tension: 0.1, // Suavidade da linha
+                    tension: 0.2, // Suavidade da linha
                     pointRadius: 0, // Remover pontos individuais
-                    pointHoverRadius: 5,
-                    borderWidth: 2
+                    pointHoverRadius: 6, // Aumentar o ponto no hover
+                    borderWidth: 3 // Linha mais grossa
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: { // Animação de carregamento
+                    duration: 1200, // Duração em ms
+                    easing: 'easeInOutQuart' // Tipo de easing para suavizar
+                },
                 plugins: {
                     legend: {
                         display: false // Oculta a legenda
@@ -111,10 +131,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     tooltip: {
                         mode: 'index',
                         intersect: false,
+                        backgroundColor: 'rgba(30, 30, 30, 0.9)', // Fundo escuro semi-transparente
+                        titleColor: '#fff', // Cor do título (data/hora)
+                        bodyColor: '#fff', // Cor do texto do corpo (preço)
+                        borderColor: 'rgba(75, 192, 192, 0.7)', // Borda
+                        borderWidth: 1,
+                        cornerRadius: 6, // Bordas arredondadas
+                        padding: 12, // Preenchimento interno
+                        displayColors: false, // Oculta a caixa de cor pequena no tooltip
                         callbacks: {
                             label: function(context) {
                                 // Formatar o valor do tooltip em BRL
                                 return `Preço: ${formatCurrency(context.raw)}`;
+                            },
+                            title: function(context) {
+                                // Formatar a data/hora para o título do tooltip
+                                return new Date(context[0].parsed.x).toLocaleString('pt-BR', {
+                                    day: '2-digit', month: '2-digit', year: 'numeric',
+                                    hour: '2-digit', minute: '2-digit', second: '2-digit'
+                                });
                             }
                         }
                     }
@@ -127,10 +162,16 @@ document.addEventListener('DOMContentLoaded', () => {
                             minRotation: 45,
                             color: 'var(--text-color)', // Cor dos rótulos do eixo X
                             autoSkip: true,
-                            maxTicksLimit: 10
+                            maxTicksLimit: 10,
+                            font: { // Ajuste da fonte dos rótulos
+                                size: 10
+                            }
                         },
                         grid: {
-                            color: 'var(--border-color)' // Cor das linhas de grade do eixo X
+                            display: false // Remover as linhas de grade do eixo X
+                        },
+                        border: {
+                            display: false // Remover a linha do eixo X
                         }
                     },
                     y: {
@@ -139,10 +180,16 @@ document.addEventListener('DOMContentLoaded', () => {
                                 // Formatar os rótulos do eixo Y como moeda BRL
                                 return formatCurrency(value);
                             },
-                            color: 'var(--text-color)' // Cor dos rótulos do eixo Y
+                            color: 'var(--text-color)', // Cor dos rótulos do eixo Y
+                            font: { // Ajuste da fonte dos rótulos
+                                size: 10
+                            }
                         },
                         grid: {
-                            color: 'var(--border-color)' // Cor das linhas de grade do eixo Y
+                            color: 'rgba(200, 200, 200, 0.1)' // Linhas de grade mais suaves no eixo Y
+                        },
+                        border: {
+                            display: false // Remover a linha do eixo Y
                         }
                     }
                 }
@@ -157,7 +204,6 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     async function fetchChartData(coinId, days) {
         try {
-            // Alterar vs_currency para BRL
             const url = `${COINGECKO_API_BASE_URL}/coins/${coinId}/market_chart?vs_currency=${VS_CURRENCY}&days=${days}`;
             const response = await fetch(url);
             if (!response.ok) {
@@ -184,7 +230,6 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleContent(true); // Mostra o loader
         try {
             // Busca dados detalhados da moeda
-            // *** AJUSTE AQUI: localization=true para obter a descrição em português ***
             const coinDetailsResponse = await fetch(`${COINGECKO_API_BASE_URL}/coins/${coinId}?localization=true&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`);
 
             if (!coinDetailsResponse.ok) {
@@ -200,28 +245,23 @@ document.addEventListener('DOMContentLoaded', () => {
             coinImage.src = coin.image.large;
             coinName.textContent = coin.name;
             coinSymbol.textContent = coin.symbol.toUpperCase();
-            // Acessar dados em BRL
             coinPrice.textContent = formatCurrency(coin.market_data.current_price.brl);
-            // Usar price_change_percentage_24h_in_currency.brl, se disponível, senão usar o global price_change_percentage_24h
             coinPriceChange24h.innerHTML = `24h: ${formatPercentage(coin.market_data.price_change_percentage_24h_in_currency ? coin.market_data.price_change_percentage_24h_in_currency.brl : coin.market_data.price_change_percentage_24h)}`;
 
             // Preencher estatísticas, acessando dados em BRL
             marketCap.textContent = formatCurrency(coin.market_data.market_cap.brl);
             totalVolume.textContent = formatCurrency(coin.market_data.total_volume.brl);
-            // .toLocaleString('pt-BR') para formatar números grandes
             circulatingSupply.textContent = coin.market_data.circulating_supply ? coin.market_data.circulating_supply.toLocaleString('pt-BR') : 'N/A';
             totalSupply.textContent = coin.market_data.total_supply ? coin.market_data.total_supply.toLocaleString('pt-BR') : 'N/A';
             marketCapRank.textContent = coin.market_data.market_cap_rank || 'N/A';
             ath.textContent = formatCurrency(coin.market_data.ath.brl);
-            // Usar ath_change_percentage.brl, se disponível, senão usar o global ath_change_percentage
             athChange.innerHTML = formatPercentage(coin.market_data.ath_change_percentage.brl);
 
             // Descrição em português - Acessa .pt ou .en como fallback
             descCoinName.textContent = coin.name;
-            // Verifica se a descrição em português existe, caso contrário, usa a versão em inglês ou um fallback genérico.
             descriptionText.innerHTML = coin.description[LOCALIZATION] || coin.description.en || 'Nenhuma descrição disponível.';
 
-            // Links sociais e outros (textos dos links não vêm da API com localização, então são estáticos)
+            // Links sociais e outros
             socialLinksContainer.innerHTML = ''; // Limpa links anteriores
             if (coin.links) {
                 if (coin.links.homepage && coin.links.homepage[0]) {
