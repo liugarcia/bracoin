@@ -42,7 +42,9 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function formatCurrency(value) {
         if (value === null || value === undefined) return 'R$ N/A';
-        return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2, maximumFractionDigits: 6 });
+        // Ajustado para formatar valores menores sem muitas casas decimais se forem 0
+        if (value === 0) return 'R$ 0,00';
+        return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2, maximumFractionDigits: value < 1 ? 8 : 2 });
     }
 
     /**
@@ -82,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }],
             chart: {
                 type: 'candlestick',
-                height: 500, // AJUSTADO: Deve corresponder à altura do .chart-container no CSS
+                height: 450, // **CHAVE:** Altura consistente com o CSS (.chart-container)
                 background: 'transparent',
                 toolbar: {
                     show: false
@@ -90,15 +92,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 zoom: {
                     enabled: true
                 },
-                // Mantenha padding em 0 para maximizar o espaço útil
-                padding: {
+                padding: { // Padding interno do gráfico
                     top: 0,
                     right: 0,
                     bottom: 0,
                     left: 0
                 },
-                // REMOVIDO: offsetY. O ajuste será feito via CSS e altura do contêiner.
-                // offsetY: -X, // Não usaremos mais esta propriedade no JS por enquanto
+                // Removido o chart.offsetY. O ajuste de espaço será feito via height e xaxis.labels.offsetY
             },
             title: {
                 text: 'Preço da Moeda (OHLC)',
@@ -117,15 +117,31 @@ document.addEventListener('DOMContentLoaded', () => {
                         hour: 'HH:mm'
                     },
                     style: {
-                        colors: 'var(--text-light)'
+                        colors: 'var(--text-light)',
+                        fontSize: '12px' // Ajustado: Tamanho da fonte dos rótulos para melhor encaixe
                     },
-                    // NÃO ADICIONE offsetY AQUI. O ajuste será feito via CSS.
+                    // **CHAVE:** Move os rótulos do eixo X (datas) para baixo para dar espaço ao gráfico
+                    offsetY: 10, // Experimente valores como 5, 10, 15. Um valor POSITIVO move para BAIXO
                 },
                 axisBorder: {
                     show: false
                 },
                 axisTicks: {
                     show: false
+                },
+                crosshairs: { // Melhoria para usabilidade
+                    show: true,
+                    stroke: {
+                        color: 'var(--primary-color)',
+                        width: 1,
+                        dashArray: 0,
+                    }
+                },
+                tooltip: { // Melhoria para usabilidade
+                    enabled: true,
+                    formatter: function(val) {
+                        return new Date(val).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+                    }
                 }
             },
             yaxis: {
@@ -137,7 +153,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         return formatCurrency(val);
                     },
                     style: {
-                        colors: 'var(--text-light)'
+                        colors: 'var(--text-light)',
+                        fontSize: '12px' // Ajustado: Tamanho da fonte dos rótulos para melhor encaixe
                     }
                 },
                 axisBorder: {
@@ -204,8 +221,11 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchChartData(coinId, days) {
         try {
             let validDays = days;
-            if (days === '1') validDays = '7'; // Pegar 7 dias para ter granularidade de 30min para 24h
-            if (days === 'max') validDays = '365'; // 'max' não é suportado diretamente por /ohlc
+            // Para '1 dia', a API ohlc não tem granularidade suficiente para 24h,
+            // então usamos '7 dias' e deixamos o ApexCharts cuidar da visualização.
+            // Para 'max', usamos 365 dias para compatibilidade com ohlc, se a intenção é ver um ano.
+            if (days === '1') validDays = '7';
+            if (days === 'max') validDays = '365'; 
 
             const url = `${COINGECKO_API_BASE_URL}/coins/${coinId}/ohlc?vs_currency=${VS_CURRENCY}&days=${validDays}`;
             const response = await fetch(url);
@@ -230,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {string} chartDays - O período de tempo inicial para o gráfico (padrão '1').
      */
     async function fetchCoinDetails(coinId, chartDays = '1') {
-        toggleContent(true);
+        toggleContent(true); // Mostra o loader
         try {
             const coinDetailsResponse = await fetch(`${COINGECKO_API_BASE_URL}/coins/${coinId}?localization=true&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`);
 
@@ -279,15 +299,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
+            // Renderiza o gráfico com os dados iniciais
             const ohlcData = await fetchChartData(coinId, chartDays);
             renderPriceChart(ohlcData);
 
-            toggleContent(false);
-
+            toggleContent(false); // Esconde o loader
         } catch (error) {
             console.error('Erro ao carregar detalhes da moeda:', error);
             coinDetailsContent.innerHTML = `<p style="text-align: center; color: var(--danger-color);">Erro ao carregar detalhes da moeda: ${error.message}</p>`;
-            toggleContent(false);
+            toggleContent(false); // Esconde o loader e exibe a mensagem de erro
         }
     }
 
@@ -309,12 +329,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Inicializa a página de detalhes
+    // Inicializa a página de detalhes quando o DOM estiver completamente carregado
     const coinId = getCoinIdFromUrl();
     if (coinId) {
         fetchCoinDetails(coinId);
     } else {
         coinDetailsContent.innerHTML = `<p style="text-align: center; color: var(--danger-color);">ID da moeda não encontrado na URL.</p>`;
-        toggleContent(false);
+        toggleContent(false); // Esconde o loader e exibe a mensagem de erro
     }
 });
