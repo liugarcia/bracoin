@@ -91,9 +91,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 // AJUSTE CRÍTICO AQUI: padding para o gráfico
                 padding: {
-                    top: 2,   // Diminua este valor para mover o gráfico mais para cima
+                    top: 5,   // Diminua este valor para mover o gráfico mais para cima
                     right: 0,
-                    bottom: 10, // Diminua ou ajuste conforme a necessidade para a parte inferior
+                    bottom: 12, // Diminua ou ajuste conforme a necessidade para a parte inferior
                     left: 0
                 }
             },
