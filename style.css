@@ -473,8 +473,6 @@ body {
 }
 
 /* Detalhes da Moeda no Modal (ou na página principal) */
-/* Este seletor .container não está em duplicidade se for para a página de detalhes,
-   mas é bom ter certeza que ele não está sobrescrevendo o .container global de forma indesejada. */
 .container { 
     max-width: 960px;
     margin: var(--spacing-md) auto;
@@ -506,11 +504,10 @@ body {
     display: flex;
     align-items: baseline;
     gap: 8px;
-    /* Adicionado para que o nome não quebre tão fácil */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: calc(100% - 70px); /* Ajuste com base na largura da imagem + margin */
+    max-width: calc(100% - 70px);
 }
 
 .coin-header .coin-symbol {
@@ -520,7 +517,7 @@ body {
     padding: 0.2em 0.5em;
     border-radius: 4px;
     font-weight: 500;
-    white-space: nowrap; /* Garante que o símbolo não quebre */
+    white-space: nowrap;
 }
 
 .coin-price {
@@ -537,8 +534,7 @@ body {
 
 .coin-stats {
     display: grid;
-    /* Ajuste o minmax para dar mais espaço, ou reduza o gap */
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Aumentado para 180px */
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: var(--spacing-sm);
     margin-bottom: var(--spacing-lg);
 }
@@ -553,22 +549,22 @@ body {
 
 .stat-item strong {
     display: block;
-    font-size: 0.85em; /* Ligeiramente menor para economizar espaço */
-    margin-bottom: 0.2em; /* Menos margem */
+    font-size: 0.85em;
+    margin-bottom: 0.2em;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    white-space: nowrap; /* Evita quebra de linha nas labels */
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .stat-item span {
-    font-size: 1.05em; /* Ligeiramente menor */
+    font-size: 1.05em;
     font-weight: 600;
     color: var(--text-light);
-    word-wrap: break-word; /* Permite quebra de palavra para valores longos */
-    display: block; /* Garante que o span ocupe seu próprio espaço */
+    word-wrap: break-word;
+    display: block;
 }
 
 .coin-description {
@@ -610,7 +606,7 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
     font-size: 0.9em;
     font-weight: 500;
-    white-space: nowrap; /* Evita quebras de linha em links curtos */
+    white-space: nowrap;
 }
 
 .social-links a:hover {
@@ -633,10 +629,10 @@ body {
     border-radius: var(--border-radius);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     
-    /* AJUSTE CHAVE AQUI: Aumentar a altura e garantir alinhamento */
-    height: 450px; /* Altere de 350px para 450px ou 500px para ter mais espaço */
+    /* AJUSTE CHAVE: Altura generosa para o gráfico */
+    height: 450px; /* Consistente com o JS agora */
     position: relative;
-    overflow: hidden; /* Mantém o corte se o gráfico exceder, mas com altura maior, deve caber */
+    overflow: hidden; /* Importante para cortar o que excede, mas com altura maior, deve caber */
 
     /* Garante que o conteúdo interno comece do topo */
     display: flex;
@@ -662,8 +658,8 @@ body {
     border-radius: var(--border-radius);
     cursor: pointer;
     transition: all var(--transition-speed) ease;
-    font-size: 0.85em; /* Ligeiramente menor */
-    white-space: nowrap; /* Garante que os rótulos dos botões não quebrem */
+    font-size: 0.85em;
+    white-space: nowrap;
 }
 
 .chart-controls button:hover {
@@ -690,7 +686,7 @@ body {
 }
 
 /* ------------------------------------------- */
-/* NOVOS ESTILOS PARA APEXCHARTS.JS (SOBRESCRITAS) */
+/* ESTILOS PARA APEXCHARTS.JS (SOBRESCRITAS) */
 /* ------------------------------------------- */
 
 /* Estilos globais do SVG gerado pelo ApexCharts */
@@ -705,8 +701,8 @@ body {
 .apexcharts-yaxis-label,
 .apexcharts-title-text,
 .apexcharts-legend-text {
-    fill: var(--text-light) !important; /* Força a cor do texto para claro */
-    color: var(--text-light) !important; /* Para garantir compatibilidade */
+    fill: var(--text-light) !important;
+    color: var(--text-light) !important;
     font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
 }
 
@@ -736,10 +732,11 @@ body {
     color: var(--text-light) !important;
 }
 
-/* NOVO AJUSTE: Mover os rótulos do eixo X (datestamps) para cima */
+/* AJUSTE FINO: Move os rótulos do eixo X (datestamps) para cima usando CSS
+   Isso complementa o `offsetY` no JS, empurrando a label para dentro da área visível. */
 .apexcharts-xaxis-texts-g text {
-    transform: translateY(-5px); /* Ajuste este valor. Um valor negativo move para CIMA */
-    /* font-size: 0.75rem !important; */ /* Opcional: reduzir fonte se estiver apertado */
+    transform: translateY(-5px); /* Um valor negativo move para CIMA. Ajuste este valor se necessário. */
+    /* font-size: 0.75rem !important; */ /* Opcional: reduzir fonte se ainda estiver apertado */
 }
 
 /* Responsividade Aprimorada */
@@ -797,9 +794,6 @@ body {
     .modal-content {
         padding: var(--spacing-md);
     }
-    /* .social-links-list { /* Este seletor não está no seu HTML atual, pode ser removido */
-    /* justify-content: center; */
-    /* } */
     .chart-controls {
         justify-content: center;
     }
