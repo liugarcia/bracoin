@@ -6,8 +6,8 @@
     <title>Detalhes da Moeda</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    </head>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+</head>
 <body>
     <div class="container">
         <div id="coinDetailsLoader">Carregando detalhes da moeda...</div>
@@ -33,7 +33,7 @@
                     <button data-days="365">1y</button>
                     <button data-days="max">All</button>
                 </div>
-                <canvas id="priceChart"></canvas>
+                <div id="priceChart"></div>
             </div>
 
             <div class="coin-stats">
@@ -67,15 +67,15 @@
                 </div>
             </div>
 
-        <div class="coin-description">
-    <h2>O que é <span id="descCoinName"></span>?</h2>
-    <p id="descriptionText" lang="en"></p>
-</div>
+            <div class="coin-description">
+                <h2>O que é <span id="descCoinName"></span>?</h2>
+                <p id="descriptionText" lang="en"></p>
+            </div>
 
             <div class="social-links">
                 <h2>Links e Redes Sociais</h2>
                 <div id="socialLinksContainer">
-                    </div>
+                </div>
             </div>
         </div>
     </div>
