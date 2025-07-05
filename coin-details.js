@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(url);
             if (!response.ok) {
                 if (response.status === 429) {
-                    throw new Error('Limite de taxa da CoinGecko excedido para dados de gráfico. Tente novamente mais tarde.');
+                    throw new Error('Limite de taxa excedido para dados de gráfico. Tente novamente daqui alguns segundos.');
                 }
                 throw new Error(`Erro ao buscar dados do gráfico OHLC: ${response.statusText}`);
             }
