@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }],
             chart: {
                 type: 'candlestick',
-                height: 450, // **CHAVE:** Altura consistente com o CSS (.chart-container)
+                height: 480, // **CHAVE:** Altura consistente com o CSS (.chart-container) - Aumentado para 480px
                 background: 'transparent',
                 toolbar: {
                     show: false
@@ -92,13 +92,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 zoom: {
                     enabled: true
                 },
-                padding: { // Padding interno do gráfico
-                    top: 0,
+                padding: { // Padding interno do gráfico - Adicionado um pequeno padding para garantir espaço
+                    top: 10, // Pequeno padding no topo
                     right: 0,
-                    bottom: 0,
+                    bottom: 0, // bottom zero para que o offset do eixo X funcione
                     left: 0
                 },
-                // Removido o chart.offsetY. O ajuste de espaço será feito via height e xaxis.labels.offsetY
+                // Não usaremos chart.offsetY, o controle é feito via height e xaxis.labels.offsetY
             },
             title: {
                 text: 'Preço da Moeda (OHLC)',
@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         fontSize: '12px' // Ajustado: Tamanho da fonte dos rótulos para melhor encaixe
                     },
                     // **CHAVE:** Move os rótulos do eixo X (datas) para baixo para dar espaço ao gráfico
-                    offsetY: 10, // Experimente valores como 5, 10, 15. Um valor POSITIVO move para BAIXO
+                    offsetY: 15, // Aumentado para 15px para empurrar mais para baixo
                 },
                 axisBorder: {
                     show: false
@@ -221,11 +221,8 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchChartData(coinId, days) {
         try {
             let validDays = days;
-            // Para '1 dia', a API ohlc não tem granularidade suficiente para 24h,
-            // então usamos '7 dias' e deixamos o ApexCharts cuidar da visualização.
-            // Para 'max', usamos 365 dias para compatibilidade com ohlc, se a intenção é ver um ano.
-            if (days === '1') validDays = '7';
-            if (days === 'max') validDays = '365'; 
+            if (days === '1') validDays = '7'; // Para ter granularidade de 30min para 24h
+            if (days === 'max') validDays = '365'; // 'max' não é suportado diretamente por /ohlc
 
             const url = `${COINGECKO_API_BASE_URL}/coins/${coinId}/ohlc?vs_currency=${VS_CURRENCY}&days=${validDays}`;
             const response = await fetch(url);
