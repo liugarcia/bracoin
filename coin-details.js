@@ -19,12 +19,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const socialLinksContainer = document.getElementById('socialLinksContainer');
 
     const chartControls = document.querySelector('.chart-controls');
-    const priceChartContainer = document.getElementById('priceChart'); // Alterado para ser o contêiner do gráfico
-    let coinChart; // Variável para armazenar a instância do ApexCharts
+    const priceChartContainer = document.getElementById('priceChart');
+    let coinChart;
 
     const COINGECKO_API_BASE_URL = 'https://api.coingecko.com/api/v3';
-    const VS_CURRENCY = 'brl'; // Definindo a moeda de comparação globalmente para BRL
-    const LOCALIZATION = 'pt'; // Definindo a localização globalmente para português
+    const VS_CURRENCY = 'brl';
+    const LOCALIZATION = 'pt';
 
     /**
      * Exibe ou oculta o loader e o conteúdo.
@@ -70,33 +70,38 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {Array<Array<number>>} ohlcData - Array de arrays, onde cada sub-array é [timestamp, open, high, low, close].
      */
     function renderPriceChart(ohlcData) {
-        // Formatar dados para ApexCharts
-        // ApexCharts espera um array de objetos { x: timestamp, y: [open, high, low, close] }
         const seriesData = ohlcData.map(d => ({
             x: new Date(d[0]),
             y: [d[1], d[2], d[3], d[4]]
         }));
 
         const options = {
-            chart: {
-                type: 'candlestick',
-                height: 350,
-                background: 'transparent', // Para integrar com o tema CSS
-                toolbar: {
-                    show: false // Oculta a barra de ferramentas padrão
-                },
-                zoom: {
-                    enabled: true // Habilita zoom
-                }
-            },
             series: [{
                 data: seriesData
             }],
+            chart: {
+                type: 'candlestick',
+                height: 350,
+                background: 'transparent',
+                toolbar: {
+                    show: false
+                },
+                zoom: {
+                    enabled: true
+                },
+                // AJUSTE CRÍTICO AQUI: padding para o gráfico
+                padding: {
+                    top: 10,   // Diminua este valor para mover o gráfico mais para cima
+                    right: 0,
+                    bottom: 10, // Diminua ou ajuste conforme a necessidade para a parte inferior
+                    left: 0
+                }
+            },
             title: {
                 text: 'Preço da Moeda (OHLC)',
                 align: 'left',
                 style: {
-                    color: 'var(--text-color)' // Usa cor do tema CSS
+                    color: 'var(--text-light)' // Correção: use a variável CSS correta
                 }
             },
             xaxis: {
@@ -109,14 +114,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         hour: 'HH:mm'
                     },
                     style: {
-                        colors: 'var(--text-color)' // Usa cor do tema CSS
+                        colors: 'var(--text-light)' // Correção: use a variável CSS correta
                     }
                 },
                 axisBorder: {
-                    show: false // Oculta a borda do eixo X
+                    show: false
                 },
                 axisTicks: {
-                    show: false // Oculta os ticks do eixo X
+                    show: false
                 }
             },
             yaxis: {
@@ -125,63 +130,60 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 labels: {
                     formatter: function(val) {
-                        return formatCurrency(val); // Formata rótulos do eixo Y como BRL
+                        return formatCurrency(val);
                     },
                     style: {
-                        colors: 'var(--text-color)' // Usa cor do tema CSS
+                        colors: 'var(--text-light)' // Correção: use a variável CSS correta
                     }
                 },
                 axisBorder: {
-                    show: false // Oculta a borda do eixo Y
+                    show: false
                 },
                 axisTicks: {
-                    show: false // Oculta os ticks do eixo Y
+                    show: false
                 }
             },
             plotOptions: {
                 candlestick: {
                     colors: {
-                        // Cores para velas de alta e baixa
-                        // Você pode ajustar estas cores no seu CSS para variáveis, se desejar
-                        // Ex: 'var(--positive-color)', 'var(--negative-color)'
-                        upward: '#00B746', // Verde para alta
-                        downward: '#EF403C' // Vermelho para baixa
+                        upward: '#00B746',
+                        downward: '#EF403C'
                     },
                     wick: {
-                        useFillColor: true // Fio (wick) da vela usa a cor de preenchimento
+                        useFillColor: true
                     }
                 }
             },
             tooltip: {
-                theme: 'dark', // Tema escuro para o tooltip
+                theme: 'dark',
                 x: {
-                    format: 'dd MMM HH:mm' // Formato da data no tooltip
+                    format: 'dd MMM HH:mm'
                 },
                 y: {
                     formatter: function(val) {
-                        return formatCurrency(val); // Formata valores do tooltip
+                        return formatCurrency(val);
                     }
                 }
             },
             grid: {
                 show: true,
-                borderColor: 'var(--border-color)', // Cor das linhas de grade do tema
-                strokeDashArray: 2, // Linhas pontilhadas para as grades
+                borderColor: 'var(--border-color)',
+                strokeDashArray: 2,
                 xaxis: {
                     lines: {
-                        show: false // Oculta linhas de grade verticais
+                        show: false
                     }
                 },
                 yaxis: {
                     lines: {
-                        show: true // Mostra linhas de grade horizontais
+                        show: true
                     }
                 }
             }
         };
 
-        // Se o gráfico já existe, ele é atualizado. Senão, é criado.
         if (coinChart) {
+            coinChart.updateOptions(options); // Usar updateOptions para atualizar settings como padding
             coinChart.updateSeries([{ data: seriesData }]);
         } else {
             coinChart = new ApexCharts(priceChartContainer, options);
@@ -191,20 +193,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /**
      * Busca os dados históricos de preços OHLC de uma moeda.
-     * A API CoinGecko para Candlestick tem um limite de dias diferente (e.g., 1, 7, 14, 30, 90, 180, 365, "max").
      * @param {string} coinId - O ID da moeda.
      * @param {string} days - O período de tempo (e.g., '1', '7', '30', '365', 'max').
      */
     async function fetchChartData(coinId, days) {
         try {
-            // Para candlestick, usamos o endpoint /ohlc e precisamos mapear os dias corretamente.
-            // A API de OHLC não aceita '1' ou 'max' da mesma forma que market_chart.
-            // Para "1 dia" talvez seja melhor usar "7" e filtrar ou adaptar a granularidade.
-            // Vamos manter os botões atuais, mas teremos que considerar a granularidade da API /ohlc
-            // API CoinGecko /ohlc granularidade: 1-2 dias = 30min, 3-30 dias = 4h, >30 dias = 4d
             let validDays = days;
-            if (days === '1') validDays = '7'; // Pegar 7 dias para ter granularidade de 30min
-            if (days === 'max') validDays = '365'; // 'max' não é suportado pelo /ohlc, usar 365 como fallback
+            // A CoinGecko API /ohlc tem granularidades específicas para dias
+            // Para "1 dia" (24h), é melhor buscar um período um pouco maior para ter 30min de granularidade.
+            // Para 'max', '365' dias é um bom fallback para /ohlc.
+            if (days === '1') validDays = '7'; // Pegar 7 dias para ter granularidade de 30min para 24h
+            if (days === 'max') validDays = '365'; // 'max' não é suportado diretamente por /ohlc
 
             const url = `${COINGECKO_API_BASE_URL}/coins/${coinId}/ohlc?vs_currency=${VS_CURRENCY}&days=${validDays}`;
             const response = await fetch(url);
@@ -215,7 +214,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(`Erro ao buscar dados do gráfico OHLC: ${response.statusText}`);
             }
             const data = await response.json();
-            // data é um array de [timestamp, open, high, low, close]
             return data;
         } catch (error) {
             console.error('Erro ao buscar dados do gráfico OHLC:', error);
@@ -230,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {string} chartDays - O período de tempo inicial para o gráfico (padrão '1').
      */
     async function fetchCoinDetails(coinId, chartDays = '1') {
-        toggleContent(true); // Mostra o loader
+        toggleContent(true);
         try {
             const coinDetailsResponse = await fetch(`${COINGECKO_API_BASE_URL}/coins/${coinId}?localization=true&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`);
 
@@ -291,7 +289,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Event listener para os botões de controle do gráfico
     chartControls.addEventListener('click', async (event) => {
         if (event.target.tagName === 'BUTTON') {
             chartControls.querySelectorAll('button').forEach(button => {
@@ -300,28 +297,17 @@ document.addEventListener('DOMContentLoaded', () => {
             event.target.classList.add('active');
 
             const coinId = getCoinIdFromUrl();
-            const days = event.target.dataset.days; // '1', '7', '30', etc.
+            const days = event.target.dataset.days;
 
             if (coinId && days) {
-                // A CoinGecko API /ohlc tem granularidades específicas para dias
-                // Ajustamos o 'days' aqui para pegar a granularidade correta para o Candlestick
-                // Por exemplo, para "1 dia", a API só dá granularidade de 30min se o período for até 2 dias.
-                // Para períodos maiores, a granularidade diminui.
-                // Vamos passar o valor de 'days' e deixar a função fetchChartData ajustar se necessário.
                 const ohlcData = await fetchChartData(coinId, days);
                 renderPriceChart(ohlcData);
             }
         }
     });
 
-    // Inicializa a página de detalhes
     const coinId = getCoinIdFromUrl();
     if (coinId) {
-        // Ativa o botão de 24h por padrão, mas para OHLC, usaremos 7 dias inicialmente
-        // para garantir dados OHLC com granularidade adequada (30min).
-        // Se a API permitir 1 dia de OHLC, use '1'
-        // Para este exemplo, manteremos os botões como estão e a função fetchChartData
-        // fará o ajuste de 'days' para o endpoint /ohlc
         fetchCoinDetails(coinId);
     } else {
         coinDetailsContent.innerHTML = `<p style="text-align: center; color: var(--danger-color);">ID da moeda não encontrado na URL.</p>`;
