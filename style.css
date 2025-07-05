@@ -1,113 +1,139 @@
 /* Reset e Estilos Globais */
 :root {
-    --primary-color: #2779ff;
-    --secondary-color: #6c5ce7;
-    --success-color: #00b894;
-    --danger-color: #d63031;
-    --warning-color: #fdcb6e;
-    --dark-color: #2d3436;
-    --light-color: #f5f6fa;
-    --gray-color: #636e72;
-    --bg-color: #f8f9fa;
-    --card-bg: #ffffff;
+    /* Cores CoinCodex-like */
+    --primary-color: #3f51b5; /* Azul mais escuro, pode ser um roxo */
+    --secondary-color: #6a1b9a; /* Roxo mais vibrante */
+    --background-dark: #1a1b24; /* Fundo escuro principal */
+    --card-background: #2a2b3a; /* Fundo de cards/elementos */
+    --text-light: #e0e0e0; /* Texto claro para fundo escuro */
+    --text-muted: #9e9e9e; /* Texto cinza suave */
+    --border-color: #3f4051; /* Borda sutil */
+
+    /* Cores de status */
+    --success-color: #4CAF50; /* Verde */
+    --danger-color: #F44336; /* Vermelho */
+    --neutral-color: #757575; /* Cinza para neutro */
+
+    /* Espaçamento */
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 1.5rem;
+    --spacing-lg: 2rem;
+    --spacing-xl: 3rem; /* Novo: Adicionado para espaçamentos maiores, se necessário */
+
+    /* Outros */
+    --border-radius: 8px;
+    --transition-speed: 0.3s;
+
+    /* Variáveis para cores RGB para fundos com opacidade, se necessário */
+    --primary-color-rgb: 63, 81, 181;
+    --danger-color-rgb: 244, 67, 54;
+    --success-color-rgb: 76, 175, 80;
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Preferência por Inter, se puder importar */
 }
 
 body {
-    background-color: var(--bg-color);
-    color: var(--dark-color);
+    background-color: var(--background-dark);
+    color: var(--text-light);
     line-height: 1.6;
+    min-height: 100vh; /* Garante que o footer fique no final da página */
+    display: flex;
+    flex-direction: column;
 }
 
 .container {
     width: 95%;
     max-width: 1400px;
     margin: 0 auto;
-    padding: 0 15px;
+    padding: 0 var(--spacing-sm); /* Padding horizontal reduzido */
 }
 
 /* Header */
-header {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-    color: white;
-    padding: 1.5rem 0;
-    text-align: center;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-header h1 {
-    font-size: 2rem;
-    margin-bottom: 0.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-
-header p {
-    font-size: 0.9rem;
-    opacity: 0.9;
-}
-
-/* Navegação */
-nav {
-    background-color: var(--card-bg);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    padding: 0.8rem 0;
+.main-header {
+    background-color: var(--card-background); /* Fundo sólido, mais limpo */
+    padding: var(--spacing-sm) 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Sombra mais escura */
     position: sticky;
     top: 0;
     z-index: 100;
 }
 
-nav .container {
+.main-header .header-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
+    flex-wrap: wrap; /* Para responsividade */
+    gap: var(--spacing-sm);
 }
 
-nav ul {
+.main-header .logo {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: white; /* Logo sempre branco/claro */
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.main-header .logo i {
+    color: var(--primary-color); /* Ícone com cor de destaque */
+}
+
+/* Navegação */
+.main-nav ul {
     display: flex;
     list-style: none;
-    gap: 5px;
+    gap: var(--spacing-xs);
 }
 
-nav ul li a {
+.main-nav ul li a {
     text-decoration: none;
-    color: var(--dark-color);
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    transition: all 0.3s ease;
+    color: var(--text-muted); /* Cor de texto padrão para links da nav */
+    padding: 0.6rem var(--spacing-sm);
+    border-radius: var(--border-radius);
+    transition: all var(--transition-speed) ease;
     display: flex;
     align-items: center;
     gap: 8px;
     font-size: 0.9rem;
+    font-weight: 500;
 }
 
-nav ul li a:hover, nav ul li a.active {
+.main-nav ul li a:hover,
+.main-nav ul li a.active {
     background-color: var(--primary-color);
     color: white;
 }
 
+/* Search Box */
 .search-box {
     display: flex;
-    margin-left: auto;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    overflow: hidden; /* Garante que os cantos arredondados funcionem */
+    flex-grow: 1; /* Permite que ocupe espaço disponível */
+    max-width: 300px; /* Limita o tamanho em telas maiores */
 }
 
 .search-box input {
     flex: 1;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 4px 0 0 4px;
+    padding: 0.6rem 0.75rem;
+    border: none;
+    background-color: var(--card-background);
+    color: var(--text-light);
     outline: none;
-    min-width: 250px;
     font-size: 0.9rem;
+}
+
+.search-box input::placeholder {
+    color: var(--text-muted);
 }
 
 .search-box button {
@@ -115,24 +141,34 @@ nav ul li a:hover, nav ul li a.active {
     color: white;
     border: none;
     padding: 0 1rem;
-    border-radius: 0 4px 4px 0;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color var(--transition-speed);
 }
 
 .search-box button:hover {
     background-color: var(--secondary-color);
 }
 
+/* Main Content Area */
+.main-content-area {
+    flex: 1; /* Permite que ocupe o espaço restante, empurrando o footer para baixo */
+    padding-top: var(--spacing-lg);
+    padding-bottom: var(--spacing-lg);
+}
+
+/* Cards */
+.card {
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md); /* Espaçamento entre cards */
+}
+
 /* Conteúdo das abas */
 .tab-content {
     display: none;
-    background-color: var(--card-bg);
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    padding: 1.5rem;
-    margin: 1.5rem 0;
-    animation: fadeIn 0.3s;
+    animation: fadeIn var(--transition-speed);
 }
 
 .tab-content.active {
@@ -144,77 +180,111 @@ nav ul li a:hover, nav ul li a.active {
     to { opacity: 1; transform: translateY(0); }
 }
 
-.tab-header {
+.section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--spacing-md);
     flex-wrap: wrap;
-    gap: 15px;
+    gap: var(--spacing-xs);
 }
 
-.tab-header h2 {
-    color: var(--dark-color);
-    font-size: 1.25rem;
+.section-header h2 {
+    color: var(--text-light);
+    font-size: 1.5rem; /* Um pouco maior */
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.tab-header span {
-    color: var(--gray-color);
+.section-header span {
+    color: var(--text-muted);
     font-size: 0.9rem;
 }
 
-.btn-refresh {
-    background-color: var(--light-color);
-    color: var(--dark-color);
-    border: 1px solid #ddd;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
+/* Botões genéricos */
+.btn-primary, .btn-primary-outline {
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
     cursor: pointer;
-    display: flex;
+    transition: all var(--transition-speed) ease;
+    display: inline-flex; /* Para alinhar ícones */
     align-items: center;
+    justify-content: center;
     gap: 8px;
-    font-size: 0.9rem;
-    transition: all 0.3s;
+    font-weight: 600;
 }
 
-.btn-refresh:hover {
+.btn-primary {
     background-color: var(--primary-color);
     color: white;
-    border-color: var(--primary-color);
+    border: none;
 }
 
-/* Tabelas */
+.btn-primary:hover {
+    background-color: var(--secondary-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary-outline {
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+}
+
+.btn-primary-outline:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Tabelas de Moedas */
+/* Adicionado container para rolagem horizontal em telas pequenas */
 .table-responsive {
-    overflow-x: auto;
-    margin-bottom: 1.5rem;
+    width: 100%;
+    overflow-x: auto; /* Permite rolagem horizontal */
+    -webkit-overflow-scrolling: touch; /* Suaviza rolagem em iOS */
+    border-radius: var(--border-radius); /* Aplica borda ao container da tabela */
+    border: 1px solid var(--border-color); /* Adiciona borda ao redor da tabela */
 }
 
-table {
+.coin-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.9rem;
+    min-width: 600px; /* Garante que a tabela tenha uma largura mínima para a rolagem */
 }
 
-th, td {
-    padding: 0.75rem;
+.coin-table th, .coin-table td {
+    padding: 0.8rem var(--spacing-sm); /* Mais espaçamento interno */
     text-align: left;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-color); /* Borda sutil */
+    /* white-space: nowrap; Removido para permitir quebra de linha em colunas específicas se necessário,
+                          mas mantido para células que precisam ser nowrap, como símbolo ou preço */
 }
 
-th {
-    background-color: var(--light-color);
+.coin-table th {
+    background-color: var(--card-background); /* Fundo do cabeçalho igual ao card */
     font-weight: 600;
-    color: var(--dark-color);
+    color: var(--text-muted); /* Cor de texto mais suave para o cabeçalho */
     position: sticky;
-    top: 0;
+    top: 0; /* Fixa o cabeçalho ao rolar */
+    z-index: 10; /* Garante que o cabeçalho esteja acima do conteúdo da tabela */
 }
 
-tr:hover {
-    background-color: rgba(0, 0, 0, 0.02);
+.coin-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.05); /* Efeito de hover mais suave */
 }
+
+/* Ajustes de largura para colunas específicas */
+.coin-table th:nth-child(1), .coin-table td:nth-child(1) { width: 50px; text-align: center; } /* Rank */
+.coin-table th:nth-child(2), .coin-table td:nth-child(2) { width: 200px; } /* Moeda */
+.coin-table th:nth-child(3), .coin-table td:nth-child(3) { width: 120px; white-space: nowrap; } /* Preço */
+.coin-table th:nth-child(4), .coin-table td:nth-child(4) { width: 100px; white-space: nowrap; } /* 24h % */
+.coin-table th:nth-child(5), .coin-table td:nth-child(5) { width: 150px; white-space: nowrap; } /* Volume 24h */
+.coin-table th:nth-child(6), .coin-table td:nth-child(6) { width: 180px; white-space: nowrap; } /* Cap. Mercado */
+.coin-table th:nth-child(7), .coin-table td:nth-child(7) { width: 100px; text-align: center; } /* Ação */
+
 
 .coin-cell {
     display: flex;
@@ -224,72 +294,73 @@ tr:hover {
 }
 
 .coin-logo {
-    width: 24px;
-    height: 24px;
+    width: 28px; /* Ícones um pouco maiores */
+    height: 28px;
     border-radius: 50%;
     object-fit: contain;
 }
 
 .coin-name {
     font-weight: 600;
-    color: var(--dark-color);
+    color: var(--text-light);
 }
 
 .coin-symbol {
-    color: var(--gray-color);
+    color: var(--text-muted);
     font-size: 0.8rem;
+    text-transform: uppercase; /* Símbolo em maiúsculas */
 }
 
 .price-change {
     display: inline-block;
-    padding: 0.25rem 0.5rem;
+    padding: 0.2rem 0.5rem;
     border-radius: 4px;
     font-weight: 600;
     font-size: 0.85rem;
 }
 
 .price-change.positive {
-    background-color: rgba(0, 184, 148, 0.1);
+    background-color: rgba(var(--success-color-rgb), 0.15); /* Verde com opacidade */
     color: var(--success-color);
 }
 
 .price-change.negative {
-    background-color: rgba(214, 48, 49, 0.1);
+    background-color: rgba(var(--danger-color-rgb), 0.15); /* Vermelho com opacidade */
     color: var(--danger-color);
 }
 
 .price-change.neutral {
-    background-color: rgba(99, 110, 114, 0.1);
-    color: var(--gray-color);
+    background-color: rgba(117, 117, 117, 0.15);
+    color: var(--neutral-color);
 }
 
 .btn-action {
     background: none;
     border: none;
-    color: var(--primary-color);
+    color: var(--text-muted); /* Cor neutra para ações */
     cursor: pointer;
     padding: 0.25rem;
     font-size: 0.9rem;
-    transition: color 0.3s;
+    transition: color var(--transition-speed);
     display: flex;
     align-items: center;
     gap: 5px;
 }
 
 .btn-action:hover {
-    color: var(--secondary-color);
+    color: var(--primary-color); /* Realce ao passar o mouse */
 }
 
 /* Formulário */
-#add-coin {
+.form-card {
     max-width: 800px;
-    margin: 1.5rem auto;
+    margin: var(--spacing-lg) auto; /* Centraliza o card do formulário com margem superior/inferior */
 }
 
 .form-row {
     display: flex;
-    gap: 15px;
-    margin-bottom: 1rem;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
 }
 
 .form-row .form-group {
@@ -297,26 +368,29 @@ tr:hover {
 }
 
 .form-group {
-    margin-bottom: 1.25rem;
+    margin-bottom: var(--spacing-sm);
 }
 
 .form-group label {
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 600;
-    color: var(--dark-color);
+    color: var(--text-light);
     display: flex;
     align-items: center;
     gap: 8px;
+    font-size: 0.9rem;
 }
 
 .form-group input, .form-group textarea, .form-group select {
     width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    padding: 0.8rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
     font-size: 1rem;
-    transition: border-color 0.3s;
+    background-color: var(--background-dark); /* Fundo escuro para inputs */
+    color: var(--text-light);
+    transition: border-color var(--transition-speed);
 }
 
 .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
@@ -344,302 +418,418 @@ tr:hover {
 .social-input i {
     width: 20px;
     text-align: center;
-    color: var(--gray-color);
+    color: var(--text-muted);
 }
 
-.social-input input {
-    flex: 1;
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 1rem;
-}
-
-.btn-submit {
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 4px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 1rem;
-    width: 100%;
-    justify-content: center;
-}
-
-.btn-submit:hover {
-    background-color: var(--secondary-color);
-}
-
-/* Modal */
+/* Modal (Detalhes da Moeda) - Estilos unificados e corrigidos */
 .modal {
-    display: none;
+    display: none; /* Controlado por JS */
     position: fixed;
     z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.7); /* Fundo mais escuro */
     overflow: auto;
+    display: flex; /* Para centralizar o modal */
+    align-items: center;
+    justify-content: center;
 }
 
 .modal-content {
-    background-color: var(--card-bg);
-    margin: 5% auto;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    background-color: var(--card-background);
+    margin: auto; /* Centraliza o modal */
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
     width: 90%;
-    max-width: 600px;
+    max-width: 700px; /* Reduz um pouco o max-width */
     position: relative;
-    animation: modalopen 0.3s;
+    animation: modalopen var(--transition-speed);
 }
 
 .modal-content.large {
-    max-width: 800px;
+    max-width: 900px; /* Aumenta para a versão large */
 }
 
 @keyframes modalopen {
-    from {opacity: 0; transform: translateY(-20px);}
-    to {opacity: 1; transform: translateY(0);}
+    from {opacity: 0; transform: scale(0.95);}
+    to {opacity: 1; transform: scale(1);}
 }
 
 .close {
     position: absolute;
-    top: 15px;
-    right: 20px;
-    font-size: 1.5rem;
-    color: var(--gray-color);
+    top: 1rem;
+    right: 1.5rem;
+    font-size: 2rem; /* Ícone de fechar maior */
+    color: var(--text-muted);
     cursor: pointer;
-    transition: color 0.3s;
+    transition: color var(--transition-speed);
 }
 
 .close:hover {
     color: var(--danger-color);
 }
 
-/* Detalhes da Moeda */
+/* Detalhes da Moeda no Modal */
+/* Renomeado de .coin-header para .coin-detail-header para evitar conflitos */
 .coin-detail-header {
     display: flex;
     align-items: center;
-    gap: 15px;
-    margin-bottom: 1.5rem;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color); /* Linha divisória */
+    padding-bottom: var(--spacing-md);
 }
-
-.coin-detail-logo {
-    width: 64px;
-    height: 64px;
-    object-fit: contain;
+.coin-detail-header img { /* Renomeado de .coin-header img para .coin-detail-logo */
+    width: 72px; /* Logo maior no modal */
+    height: 72px;
+    margin-right: 15px; /* Ajustado para gap */
     border-radius: 50%;
+    object-fit: contain;
 }
-
-.coin-detail-name {
-    font-size: 1.5rem;
+.coin-detail-header h1 { /* Renomeado de .coin-header h1 */
+    font-size: 2rem; /* Nome da moeda maior */
+    font-weight: 700;
+    color: var(--text-light); /* Corrigido para var(--text-light) */
+    margin: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 10px; /* Adicionado gap para alinhamento */
+}
+.coin-detail-header .coin-symbol { /* Renomeado de .coin-header .coin-symbol */
+    background-color: var(--background-dark); /* Fundo mais escuro para o símbolo */
+    color: var(--text-muted);
+    padding: 0.3rem 0.7rem;
+    border-radius: 6px; /* Bordas mais arredondadas */
+    font-size: 1rem;
     font-weight: 600;
-    color: var(--dark-color);
+    text-transform: uppercase;
+    margin-left: 0; /* Removido margin-left para usar gap */
+}
+.coin-detail-price { /* Renomeado de .coin-price */
+    font-size: 2.5rem; /* Preço bem grande */
+    font-weight: 700;
+    margin: 0.5rem 0;
+    color: var(--text-light); /* Corrigido para var(--text-light) */
+}
+.price-change-24h { /* Renomeado de .price-change-24h */
+    font-size: 1.2em;
+    margin-bottom: var(--spacing-md); /* Usando variável de espaçamento */
+}
+/* .price-change.positive e .price-change.negative já existem e estão corretos */
+.coin-detail-stats { /* Renomeado de .coin-stats */
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Mais colunas, itens menores */
+    gap: var(--spacing-sm);
+    margin: var(--spacing-md) 0;
+}
+.stat-card { /* Renomeado de .stat-item */
+    background-color: var(--background-dark); /* Fundo mais escuro para stats */
+    padding: var(--spacing-sm);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color); /* Borda sutil */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Sombra mais suave */
+}
+.stat-label { /* Renomeado de .stat-item strong */
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block; /* Garante que seja um bloco */
+}
+.stat-value { /* Renomeado de .stat-item span */
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-light); /* Corrigido para var(--text-light) */
+}
+.coin-description {
+    margin-bottom: var(--spacing-md); /* Usando variável de espaçamento */
+}
+.coin-description h2 {
+    color: var(--text-light); /* Corrigido para var(--text-light) */
+    margin-bottom: 0.75rem; /* Usando variável de espaçamento */
+    font-size: 1.5rem;
     display: flex;
     align-items: center;
     gap: 10px;
 }
-
-.coin-detail-symbol {
-    background-color: var(--light-color);
-    color: var(--gray-color);
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.9rem;
-}
-
-.coin-detail-price {
-    font-size: 1.75rem;
-    font-weight: 600;
-    margin: 0.5rem 0;
-}
-
-.coin-detail-change {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 1rem;
-}
-
-.coin-detail-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1rem;
-    margin: 1.5rem 0;
-}
-
-.stat-card {
-    background-color: var(--light-color);
-    padding: 1rem;
-    border-radius: 8px;
-}
-
-.stat-label {
-    font-size: 0.8rem;
-    color: var(--gray-color);
-    margin-bottom: 0.5rem;
-}
-
-.stat-value {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--dark-color);
-}
-
-.positive {
-    color: var(--success-color);
-}
-
-.negative {
-    color: var(--danger-color);
+.coin-description p {
+    line-height: 1.7; /* Aumenta um pouco o line-height para melhor legibilidade */
+    color: var(--text-muted); /* Texto da descrição mais suave */
 }
 
 /* Gráfico */
 .chart-container {
-    margin: 1.5rem 0;
-    height: 300px;
+    margin: var(--spacing-md) 0;
+    height: 350px; /* Gráfico um pouco mais alto */
+    background-color: var(--background-dark); /* Fundo do gráfico */
+    border-radius: var(--border-radius);
+    padding: var(--spacing-sm);
 }
 
-/* Social Links */
-.social-links-container {
-    margin: 1.5rem 0;
-}
-
-.social-links-container h4 {
-    margin-bottom: 0.5rem;
-    color: var(--dark-color);
-}
-
-.social-links-list {
+/* Controles do Gráfico (botões 24h, 7d, etc.) */
+.chart-controls {
     display: flex;
-    gap: 15px;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    margin-top: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    flex-wrap: wrap; /* Para quebrar linha em telas menores */
 }
 
-.social-link {
+.chart-controls button {
+    background-color: var(--background-dark);
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all var(--transition-speed) ease;
+}
+
+.chart-controls button:hover {
+    background-color: rgba(var(--primary-color-rgb), 0.1);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.chart-controls button.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+
+/* Social Links no Modal */
+.social-links-container { /* Renomeado de .social-links */
+    margin: var(--spacing-md) 0;
+}
+
+.social-links-container h2 { /* Renomeado de .social-links h2 */
+    color: var(--text-light); /* Corrigido para var(--text-light) */
+    margin-bottom: 0.75rem; /* Usando variável de espaçamento */
+    font-size: 1.5rem;
+}
+
+.social-links-list { /* Adicionado para envolver os links */
     display: flex;
+    flex-wrap: wrap; /* Para quebrar linha em telas menores */
+    gap: var(--spacing-sm);
+}
+
+.social-link { /* Renomeado de .social-links a */
+    display: inline-flex; /* Alterado de flex para inline-flex para melhor ajuste de linha */
     align-items: center;
-    gap: 5px;
+    gap: 8px;
     color: var(--primary-color);
     text-decoration: none;
-    padding: 0.5rem;
-    border-radius: 4px;
-    transition: all 0.3s;
+    padding: 0.6rem 1rem;
+    border-radius: var(--border-radius);
+    background-color: rgba(var(--primary-color-rgb), 0.1); /* Fundo sutil com base na cor primária */
+    transition: all var(--transition-speed);
+    font-size: 0.9rem;
+    margin-right: 0; /* Removido para usar gap no pai */
+    margin-bottom: 0; /* Removido para usar gap no pai */
 }
 
 .social-link:hover {
-    background-color: rgba(39, 121, 255, 0.1);
+    background-color: var(--primary-color);
+    color: white;
+}
+.social-link i { /* Renomeado de .social-links i */
+    margin-right: 0; /* Removido para usar gap */
 }
 
 /* Footer */
-footer {
-    background-color: var(--dark-color);
-    color: white;
-    padding: 2rem 0;
+.main-footer {
+    background-color: var(--card-background); /* Cor de fundo igual aos cards */
+    color: var(--text-muted);
+    padding: var(--spacing-lg) 0;
     text-align: center;
-    margin-top: 2rem;
+    margin-top: auto; /* Empurra o footer para o final da página */
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2); /* Sombra na parte superior do footer */
 }
 
-.social-links {
-    margin-top: 1rem;
+.footer-social-links {
+    margin-top: var(--spacing-sm);
     display: flex;
     justify-content: center;
-    gap: 15px;
+    gap: var(--spacing-md);
 }
 
-.social-links a {
-    color: white;
-    font-size: 1.2rem;
-    transition: opacity 0.3s;
+.footer-social-links a {
+    color: var(--text-muted);
+    font-size: 1.4rem;
+    transition: color var(--transition-speed);
 }
 
-.social-links a:hover {
-    opacity: 0.8;
+.footer-social-links a:hover {
+    color: var(--primary-color);
 }
 
-/* Responsividade */
-@media (max-width: 768px) {
-    nav .container {
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    nav ul {
-        width: 100%;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-
-    .search-box {
-        width: 100%;
-        margin-left: 0;
-    }
-
-    .form-row {
-        flex-direction: column;
-        gap: 0;
-    }
-
-    .coin-detail-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .coin-detail-stats {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-@media (max-width: 480px) {
-    .coin-detail-stats {
-        grid-template-columns: 1fr;
-    }
-
-    .modal-content {
-        width: 95%;
-        padding: 1.5rem;
-    }
-
-    .social-links-list {
-        flex-direction: column;
-        gap: 5px;
-    }
-}
-
-
+/* Loader */
 .loader-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    display: flex; /* Flex para centralizar o spinner */
+    background-color: rgba(0, 0, 0, 0.85); /* Fundo mais escuro */
+    display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 9999; /* Garante que esteja acima de tudo */
+    z-index: 9999;
     color: white;
     font-size: 1.2em;
-    flex-direction: column; /* Para texto e spinner */
+    flex-direction: column;
+    gap: var(--spacing-xs);
 }
 
 .loader-spinner {
-    border: 4px solid #f3f3f3; /* Light grey */
-    border-top: 4px solid var(--primary-color); /* Blue */
+    border: 4px solid var(--border-color);
+    border-top: 4px solid var(--primary-color);
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    width: 50px; /* Maior */
+    height: 50px;
     animation: spin 1s linear infinite;
-    margin-bottom: 10px;
 }
 
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+/* Estilos para o loader específico da página de detalhes */
+#coinDetailsLoader {
+    display: flex; /* Garante que o loader está flex */
+    flex-direction: column; /* Organiza conteúdo verticalmente */
+    justify-content: center;
+    align-items: center;
+    min-height: 300px; /* Altura mínima para o loader aparecer centralizado na área de conteúdo */
+    font-size: 1.2em;
+    color: var(--primary-color);
+}
+
+
+---
+### Responsividade Aprimorada
+
+```css
+/* Responsividade */
+@media (max-width: 992px) {
+    .main-header .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .main-nav ul {
+        justify-content: center;
+        width: 100%;
+        margin-top: var(--spacing-xs);
+    }
+    .search-box {
+        width: 100%;
+        max-width: none;
+    }
+    /* Tabela: Em telas médias, a rolagem horizontal já é ativada pelo .table-responsive */
+}
+
+@media (max-width: 768px) {
+    .main-nav ul {
+        flex-wrap: wrap;
+        justify-content: center; /* Centraliza itens da nav quando quebra */
+    }
+    .main-nav ul li a {
+        padding: 0.5rem var(--spacing-sm); /* Ajusta padding */
+        font-size: 0.85rem;
+    }
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left; /* Garante alinhamento à esquerda */
+    }
+    .section-header h2 {
+        font-size: 1.3rem; /* Reduz o tamanho do título da seção */
+    }
+    .form-row {
+        flex-direction: column;
+        gap: 0; /* O gap entre form-group já é tratado por margin-bottom */
+    }
+    .coin-detail-header {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+    }
+    .coin-detail-name {
+        font-size: 1.75rem;
+    }
+    .coin-detail-price {
+        font-size: 2rem;
+    }
+    .coin-detail-stats {
+        grid-template-columns: 1fr 1fr; /* Duas colunas */
+    }
+    .modal-content {
+        padding: var(--spacing-md); /* Reduz padding do modal */
+    }
+    .social-links-list {
+        justify-content: center; /* Centraliza links sociais em telas menores */
+    }
+    .chart-controls {
+        justify-content: center; /* Centraliza os botões do gráfico */
+    }
+}
+
+@media (max-width: 480px) {
+    .main-header .logo {
+        font-size: 1.5rem; /* Logo menor */
+    }
+    .main-nav ul {
+        gap: var(--spacing-xs); /* Mantém gap, mas permite quebra de linha */
+    }
+    .main-nav ul li a {
+        font-size: 0.8rem; /* Links da nav ainda menores */
+        padding: 0.3rem 0.6rem;
+    }
+    .container {
+        padding: 0 var(--spacing-xs); /* Padding horizontal ainda menor */
+    }
+    .coin-table th, .coin-table td {
+        padding: 0.6rem var(--spacing-xs); /* Padding da tabela mais apertado */
+        font-size: 0.8rem; /* Texto da tabela menor */
+    }
+    .coin-logo {
+        width: 24px;
+        height: 24px;
+    }
+    .coin-name {
+        font-size: 0.85rem;
+    }
+    .coin-symbol {
+        font-size: 0.7rem;
+    }
+    .price-change {
+        font-size: 0.75rem;
+        padding: 0.15rem 0.4rem;
+    }
+    .coin-detail-stats {
+        grid-template-columns: 1fr; /* Uma coluna */
+    }
+    .modal-content {
+        width: 95%;
+        padding: var(--spacing-md);
+    }
+    .coin-detail-name {
+        font-size: 1.5rem;
+    }
+    .coin-detail-price {
+        font-size: 1.8rem;
+    }
+    .social-link {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+    }
 }
