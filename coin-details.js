@@ -30,6 +30,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const COIN_DETAILS_CACHE_PREFIX = 'coinDetailsCache_'; 
     const COIN_DETAILS_CACHE_EXPIRATION_TIME = 24 * 60 * 60 * 1000; // 24 horas em milissegundos
 
+    // Nova chave de cache para os dados do gráfico (por moeda e por período)
+    const CHART_DATA_CACHE_PREFIX = 'chartDataCache_';
+    const CHART_DATA_CACHE_EXPIRATION_TIME = 10 * 60 * 1000; // 10 minutos em milissegundos para o gráfico
+
     /**
      * Exibe ou oculta o loader e o conteúdo.
      * @param {boolean} showLoader - true para mostrar o loader, false para mostrar o conteúdo.
@@ -75,6 +79,17 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {Array<Array<number>>} ohlcData - Array de arrays, onde cada sub-array é [timestamp, open, high, low, close].
      */
     function renderPriceChart(ohlcData) {
+        // Se não houver dados, exibe uma mensagem no container do gráfico
+        if (!ohlcData || ohlcData.length === 0) {
+            priceChartContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding-top: 50px;">Dados do gráfico indisponíveis.</p>';
+            if (coinChart) {
+                coinChart.destroy(); // Destrói a instância anterior se existir
+                coinChart = null;
+            }
+            return;
+        }
+
+        // Se houver dados, formata e renderiza o gráfico
         const seriesData = ohlcData.map(d => ({
             x: new Date(d[0]),
             y: [d[1], d[2], d[3], d[4]]
@@ -213,33 +228,61 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Busca os dados históricos de preços OHLC de uma moeda.
+     * Busca os dados históricos de preços OHLC de uma moeda, com cache e fallback.
      * @param {string} coinId - O ID da moeda.
      * @param {string} days - O período de tempo (e.g., '1', '7', '30', '365', 'max').
+     * @returns {Array} - Array de dados OHLC.
      */
     async function fetchChartData(coinId, days) {
+        const cacheKey = CHART_DATA_CACHE_PREFIX + coinId + '_' + days;
+        let chartDataFromCache = null;
+
+        // Tenta carregar do cache do gráfico primeiro
+        const cachedData = localStorage.getItem(cacheKey);
+        if (cachedData) {
+            const { data, timestamp } = JSON.parse(cachedData);
+            if (Date.now() - timestamp < CHART_DATA_CACHE_EXPIRATION_TIME) {
+                chartDataFromCache = data;
+                console.log(`Dados do gráfico para '${coinId}' (${days} dias) carregados do cache.`);
+                return chartDataFromCache; // Retorna imediatamente se o cache for válido
+            } else {
+                console.log(`Cache do gráfico para '${coinId}' (${days} dias) expirado. Buscando da API.`);
+            }
+        }
+
+        // Se o cache estiver expirado ou não existir, tenta buscar da API
         try {
             let validDays = days;
-            // A API OHLC da CoinGecko tem granularidade diferente dependendo dos dias.
-            // Para '1' dia, geralmente retorna dados por hora/30min se o período for maior que 1 dia.
-            // Para garantir que tenhamos dados para um gráfico de candlestick de 24h,
-            // um período de '7' dias é frequentemente necessário para obter granularidade por hora.
-            if (days === '1') validDays = '7'; // Usar 7 dias para granularidade horária de 24h
-            if (days === 'max') validDays = '365'; // 'max' para /ohlc geralmente significa um período longo como 365 dias
+            if (days === '1') validDays = '7'; // Para granularidade horária para 24h
+            if (days === 'max') validDays = '365'; // Ou ajuste para 'max' se o endpoint suportar
 
             const url = `${COINGECKO_API_BASE_URL}/coins/${coinId}/ohlc?vs_currency=${VS_CURRENCY}&days=${validDays}`;
             const response = await fetch(url);
             if (!response.ok) {
                 if (response.status === 429) {
-                    throw new Error('Limite de taxa excedido para dados de gráfico. Tente novamente daqui alguns segundos.');
+                    throw new Error('Limite de taxa excedido para dados de gráfico. Tentando carregar do cache antigo.');
                 }
-                throw new Error(`Erro ao buscar dados do gráfico OHLC: ${response.statusText}`);
+                throw new Error(`Erro ao buscar dados do gráfico OHLC: ${response.statusText}. Tentando carregar do cache antigo.`);
             }
             const data = await response.json();
+            
+            // Armazena os novos dados no cache
+            localStorage.setItem(cacheKey, JSON.stringify({ data: data, timestamp: Date.now() }));
+            console.log(`Dados do gráfico para '${coinId}' (${days} dias) atualizados da API e salvos no cache.`);
             return data;
         } catch (error) {
-            console.error('Erro ao buscar dados do gráfico OHLC:', error);
-            alert('Erro ao carregar dados do gráfico: ' + error.message);
+            console.error('Erro ao buscar dados do gráfico OHLC da API:', error);
+            // Se a busca da API falhar, tente usar o cache (mesmo que expirado) como fallback
+            if (chartDataFromCache) {
+                alert('Erro ao atualizar dados do gráfico. Exibindo dados do cache antigo. Erro: ' + error.message);
+                return chartDataFromCache;
+            } else if (cachedData) { // Tenta usar o cache expirado se não houver um 'chartDataFromCache' já carregado
+                const { data } = JSON.parse(cachedData);
+                alert('Erro ao atualizar dados do gráfico. Exibindo dados do cache expirado. Erro: ' + error.message);
+                return data;
+            }
+            // Se não houver cache algum, retorna vazio
+            alert('Não foi possível carregar os dados do gráfico: ' + error.message);
             return [];
         }
     }
@@ -294,13 +337,13 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadCoinDetails(coinId, chartDays = '1') {
         toggleContent(true); // Mostra o loader
         let coinDetailsFromCache = null;
-        const cacheKey = COIN_DETAILS_CACHE_PREFIX + coinId;
+        const detailsCacheKey = COIN_DETAILS_CACHE_PREFIX + coinId;
 
         try {
-            // 1. Tenta carregar os detalhes completos do cache
-            const cachedData = localStorage.getItem(cacheKey);
-            if (cachedData) {
-                const { data, timestamp } = JSON.parse(cachedData);
+            // 1. Tenta carregar os detalhes completos do cache de 24h
+            const cachedDetails = localStorage.getItem(detailsCacheKey);
+            if (cachedDetails) {
+                const { data, timestamp } = JSON.parse(cachedDetails);
                 if (Date.now() - timestamp < COIN_DETAILS_CACHE_EXPIRATION_TIME) {
                     coinDetailsFromCache = data;
                     console.log(`Detalhes completos de '${coinId}' carregados do cache (24h).`);
@@ -310,39 +353,49 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // 2. Sempre faz a chamada à API para obter os dados mais atualizados e revalidar o cache
-            console.log(`Buscando detalhes mais atualizados de '${coinId}' da API CoinGecko.`);
-            const coinDetailsResponse = await fetch(`${COINGECKO_API_BASE_URL}/coins/${coinId}?localization=true&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`);
+            // 2. Tenta buscar os dados mais atualizados da API para os detalhes completos
+            // Se o cache foi usado, esta chamada serve para atualizar os dados dinâmicos e o próprio cache.
+            // Se o cache estava expirado ou não existia, esta é a busca primária.
+            let coinApiData = null;
+            try {
+                console.log(`Buscando detalhes mais atualizados de '${coinId}' da API CoinGecko.`);
+                const coinDetailsResponse = await fetch(`${COINGECKO_API_BASE_URL}/coins/${coinId}?localization=true&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`);
 
-            if (!coinDetailsResponse.ok) {
-                if (coinDetailsResponse.status === 429) {
-                    throw new Error('Limite de taxa da CoinGecko excedido. Tente novamente mais tarde.');
+                if (!coinDetailsResponse.ok) {
+                    if (coinDetailsResponse.status === 429) {
+                        throw new Error('Limite de taxa da CoinGecko excedido. Exibindo dados do cache, se disponível.');
+                    }
+                    throw new Error(`Erro ao buscar dados completos: ${coinDetailsResponse.statusText}. Exibindo dados do cache, se disponível.`);
                 }
-                throw new Error(`Erro ao buscar dados completos: ${coinDetailsResponse.statusText}`);
+                coinApiData = await coinDetailsResponse.json();
+                console.log('Dados completos atualizados da moeda:', coinApiData);
+
+                // Armazena os dados atualizados no cache de detalhes
+                localStorage.setItem(detailsCacheKey, JSON.stringify({ data: coinApiData, timestamp: Date.now() }));
+                renderCoinDetails(coinApiData); // Atualiza a interface com os dados mais recentes
+            } catch (apiError) {
+                console.error('Erro na chamada da API de detalhes completos:', apiError);
+                if (!coinDetailsFromCache) {
+                    // Se não havia cache e a API falhou, mostre um erro crítico
+                    coinDetailsContent.innerHTML = `<p style="text-align: center; color: var(--danger-color);">Erro ao carregar detalhes da moeda: ${apiError.message}</p>`;
+                    toggleContent(false);
+                    return; // Sai da função se não houver dados para exibir
+                } else {
+                    // Se havia cache e a API falhou, alerte mas continue com o cache
+                    alert('Atenção: Não foi possível atualizar os dados da moeda. Exibindo informações do cache. Erro: ' + apiError.message);
+                }
             }
-            const coin = await coinDetailsResponse.json();
-            console.log('Dados completos atualizados da moeda:', coin);
-
-            // Armazena os dados atualizados no cache de detalhes
-            localStorage.setItem(cacheKey, JSON.stringify({ data: coin, timestamp: Date.now() }));
-            renderCoinDetails(coin); // Atualiza a interface com os dados mais recentes
-
-            // 3. Sempre busca e renderiza os dados do gráfico
+            
+            // 3. Sempre busca e renderiza os dados do gráfico (com sua própria lógica de cache/fallback)
             console.log(`Buscando dados do gráfico OHLC para '${coinId}'.`);
             const ohlcData = await fetchChartData(coinId, chartDays);
             renderPriceChart(ohlcData);
 
             toggleContent(false); // Esconde o loader quando todos os dados estiverem prontos
-        } catch (error) {
-            console.error('Erro ao carregar detalhes da moeda:', error);
-            // Se houver um erro na API e não houver dados no cache, ou o cache estiver expirado e a API falhou
-            if (!coinDetailsFromCache) {
-                coinDetailsContent.innerHTML = `<p style="text-align: center; color: var(--danger-color);">Erro ao carregar detalhes da moeda: ${error.message}</p>`;
-            } else {
-                // Se conseguimos carregar do cache mas a atualização da API falhou
-                alert('Atenção: Não foi possível atualizar os dados da moeda. Exibindo informações do cache. Erro: ' + error.message);
-            }
-            toggleContent(false); // Esconde o loader e exibe a mensagem de erro/aviso
+        } catch (error) { // Captura erros gerais que podem ter escapado (ex: coinId não encontrado)
+            console.error('Erro geral ao carregar detalhes da moeda:', error);
+            coinDetailsContent.innerHTML = `<p style="text-align: center; color: var(--danger-color);">Erro ao carregar detalhes da moeda: ${error.message}</p>`;
+            toggleContent(false);
         }
     }
 
