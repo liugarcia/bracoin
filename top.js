@@ -9,6 +9,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const CACHE_KEY = 'top100CoinsCache';
     const CACHE_EXPIRATION_TIME = 5 * 60 * 1000; // 5 minutos em milissegundos
 
+    // --- NOVA ADIÇÃO: LISTA DE SÍMBOLOS DE MOEDAS EMBRULHADAS A SEREM IGNORADAS ---
+    const WRAPPED_COINS_SYMBOLS = ['wbtc', 'weth', 'seth' ,'wsteth', 'weeth', 'cbbtc' , 'reth', 'rseth' , 'meth']; // Adicione outros símbolos conforme necessário, SEMPRE EM MINÚSCULAS
+    // -------------------------------------------------------------------------
+
     /**
      * Exibe ou oculta o loader global.
      * @param {boolean} show - true para mostrar, false para ocultar.
@@ -25,8 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @returns {string} - O valor formatado como moeda.
      */
     function formatCurrency(value) {
-        if (value === null || value === undefined) return 'R$ N/A'; // Mudado de '$ N/A' para 'R$ N/A'
-        // Mudado de '$' + para usar o formato completo do Intl.NumberFormat
+        if (value === null || value === undefined) return 'R$ N/A';
         return new Intl.NumberFormat('pt-BR', {
             style: 'currency',
             currency: 'BRL',
@@ -54,9 +57,8 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function createCoinTableRow(coin, rank) {
         const row = document.createElement('tr');
-        // Adicionar um atributo data-id para facilitar o acesso aos detalhes
         row.dataset.coinId = coin.id;
-        row.style.cursor = 'pointer'; // Adiciona um cursor de ponteiro para indicar clicável
+        row.style.cursor = 'pointer';
 
         row.innerHTML = `
             <td>${rank}</td>
@@ -89,27 +91,27 @@ document.addEventListener('DOMContentLoaded', () => {
             const cacheTimestamp = localStorage.getItem(CACHE_KEY + '_timestamp');
 
             if (cachedData && cacheTimestamp && (Date.now() - cacheTimestamp < CACHE_EXPIRATION_TIME)) {
-                // Usar dados do cache se não expirou
                 console.log('Dados Top 100 carregados do cache.');
                 const coins = JSON.parse(cachedData);
-                renderTop100Table(coins);
+                // --- NOVA CHAMADA: FILTRAR MOEDAS DO CACHE ---
+                const filteredCoins = filterWrappedCoins(coins);
+                renderTop100Table(filteredCoins);
+                // ------------------------------------------
                 return;
             }
 
-            // Se o cache expirou ou não existe, buscar da API
             console.log('Buscando dados Top 100 da CoinGecko API...');
             const params = new URLSearchParams({
-                vs_currency: 'brl', // JÁ ESTÁ CORRETO AQUI!
-                order: 'market_cap_desc', // Ordem por capitalização de mercado decrescente
-                per_page: 100,             // Apenas 100 moedas
-                page: 1,                   // Primeira página
-                sparkline: false,          // Não precisamos de dados de sparkline agora
-                price_change_percentage: '24h' // Para a variação de 24h
+                vs_currency: 'brl',
+                order: 'market_cap_desc',
+                per_page: 250, // Aumentamos para buscar mais e garantir 100 moedas após a filtragem
+                page: 1,
+                sparkline: false,
+                price_change_percentage: '24h'
             });
 
             const response = await fetch(`${COINGECKO_API_URL}?${params.toString()}`);
             if (!response.ok) {
-                // Lidar com rate limit ou outros erros da API
                 if (response.status === 429) {
                     throw new Error('Limite de taxa da CoinGecko excedido. Tente novamente mais tarde.');
                 }
@@ -117,11 +119,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const coins = await response.json();
 
-            // Armazenar no cache
+            // --- NOVA ADIÇÃO: FILTRAR MOEDAS DA API ANTES DE CACHE E RENDERIZAR ---
+            const filteredCoins = filterWrappedCoins(coins);
+            // -----------------------------------------------------------------
+
+            // Armazenar no cache os dados **originais** (sem filtrar), para que se a lista de ignorados mudar, o cache ainda possa ser reprocessado
             localStorage.setItem(CACHE_KEY, JSON.stringify(coins));
             localStorage.setItem(CACHE_KEY + '_timestamp', Date.now().toString());
 
-            renderTop100Table(coins);
+            renderTop100Table(filteredCoins);
 
         } catch (error) {
             console.error('Erro ao carregar Top 100 moedas:', error);
@@ -132,30 +138,58 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- NOVA FUNÇÃO: FILTRA MOEDAS EMBRULHADAS ---
+    /**
+     * Filtra uma lista de moedas, removendo aquelas que são consideradas "embrulhadas".
+     * @param {Array} coins - Array de objetos de moedas.
+     * @returns {Array} - Array de moedas filtradas.
+     */
+    function filterWrappedCoins(coins) {
+        const filtered = [];
+        let count = 0;
+        for (const coin of coins) {
+            // Converte o símbolo para minúsculas para comparação
+            const symbolLower = coin.symbol.toLowerCase();
+            // Verifica se o símbolo está na lista de moedas embrulhadas
+            if (!WRAPPED_COINS_SYMBOLS.includes(symbolLower)) {
+                filtered.push(coin);
+                count++;
+            }
+            // Parar quando tivermos 100 moedas válidas
+            if (count >= 100) {
+                break;
+            }
+        }
+        return filtered;
+    }
+    // -----------------------------------------------------------------
+
     /**
      * Renderiza a tabela das Top 100 moedas.
      * @param {Array} coins - Array de objetos de moedas.
      */
     function renderTop100Table(coins) {
-        top100TableBody.innerHTML = ''; // Limpa o corpo da tabela
+        top100TableBody.innerHTML = '';
         if (coins.length === 0) {
             top100TableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Nenhuma moeda encontrada.</td></tr>`;
             return;
         }
-        coins.forEach((coin, index) => {
-            const row = createCoinTableRow(coin, index + 1);
+        // Usamos um contador `rank` separado para manter a classificação correta após a filtragem
+        let rank = 1;
+        for (const coin of coins) {
+            const row = createCoinTableRow(coin, rank);
             top100TableBody.appendChild(row);
-        });
+            rank++;
+        }
     }
 
     // Event Listener para redirecionar para a página de detalhes da moeda
     top100TableBody.addEventListener('click', (event) => {
-        let targetRow = event.target.closest('tr'); // Pega a linha clicada
-        // Se o clique foi no botão "Detalhes"
+        let targetRow = event.target.closest('tr');
         if (event.target.closest('.btn-action')) {
             const coinId = event.target.closest('.btn-action').dataset.coinId;
             window.location.href = `coin-details.html?id=${coinId}`;
-        } else if (targetRow && targetRow.dataset.coinId) { // Se o clique foi na linha da moeda
+        } else if (targetRow && targetRow.dataset.coinId) {
             const coinId = targetRow.dataset.coinId;
             window.location.href = `coin-details.html?id=${coinId}`;
         }
@@ -163,22 +197,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Event Listeners
     refreshTop100Button.addEventListener('click', () => {
-        // Forçar a busca de novos dados (ignorando o cache por um momento)
         localStorage.removeItem(CACHE_KEY);
         localStorage.removeItem(CACHE_KEY + '_timestamp');
         fetchTop100Coins();
     });
 
     // Função para inicializar a aba Top 100 quando ela se torna ativa
-    // Esta função será chamada pelo script.js principal
     window.initializeTop100Tab = function() {
         fetchTop100Coins();
-        // Opcional: configurar um refresh automático a cada X minutos para esta aba
-        // setInterval(fetchTop100Coins, CACHE_EXPIRATION_TIME);
     };
 
-    // Chamar a inicialização se a aba Top 100 for a ativa no carregamento inicial
-    // Ou, se você gerencia as abas no script.js, ele chamará initializeTop100Tab
     if (document.getElementById('top100').classList.contains('active')) {
         window.initializeTop100Tab();
     }
