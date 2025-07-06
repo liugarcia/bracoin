@@ -40,7 +40,10 @@
             
             <nav class="main-nav desktop-nav">
                 <ul id="mainTabs">
-                    <li><a href="#" class="tab-link active" data-tab="all-crypto">All Crypto</a></li>
+                    <li><a href="#" class="tab-link active" data-tab="add-coin">Adicionar Moeda</a></li>
+                    <li><a href="#" class="tab-link" data-tab="trending">Trending</a></li>
+                    <li><a href="#" class="tab-link" data-tab="new-listings">Novos Lançamentos</a></li>
+                    <li><a href="#" class="tab-link" data-tab="all-crypto">All Crypto</a></li>
                     <li><a href="#" class="tab-link" data-tab="nfts">NFTs</a></li>
                     <li><a href="#" class="tab-link" data-tab="categories">Categories</a></li>
                     <li><a href="#" class="tab-link" data-tab="defi">DeFi</a></li>
@@ -71,7 +74,8 @@
             <div class="metric-card gas-fee-card">
                 <span class="metric-label">Ethereum Gas Fee</span>
                 <span class="metric-value">50 Gwei</span>
-                <div class="gas-indicator good"></div> </div>
+                <div class="gas-indicator good"></div> 
+            </div>
         </section>
 
         <section class="filters-section">
@@ -81,7 +85,7 @@
                     <li><a href="#" class="sub-tab-link">NFTs</a></li>
                     <li><a href="#" class="sub-tab-link">Categories</a></li>
                     <li><a href="#" class="sub-tab-link">Sale</a></li>
-                    </ul>
+                </ul>
             </nav>
             <div class="action-buttons">
                 <button class="filter-button"><i class="fas fa-filter"></i> Filters</button>
@@ -89,7 +93,140 @@
             </div>
         </section>
 
-        <div id="all-crypto" class="tab-content active">
+        <div id="add-coin" class="tab-content active"> 
+            <h2>Adicionar Nova Moeda</h2>
+            <form id="coinForm" class="coin-form card">
+                <div class="form-group">
+                    <label for="coinName">Nome da Moeda:</label>
+                    <input type="text" id="coinName" required>
+                </div>
+                <div class="form-group">
+                    <label for="coinSymbol">Símbolo (Ex: BTC):</label>
+                    <input type="text" id="coinSymbol" required maxlength="10">
+                </div>
+                <div class="form-group">
+                    <label for="coinContract">Endereço do Contrato:</label>
+                    <input type="text" id="coinContract" required>
+                </div>
+                <div class="form-group">
+                    <label for="coinNetwork">Rede Blockchain:</label>
+                    <select id="coinNetwork" required>
+                        <option value="">Selecione a Rede</option>
+                        <option value="eth">Ethereum</option>
+                        <option value="bsc">Binance Smart Chain</option>
+                        <option value="polygon">Polygon</option>
+                        <option value="avax">Avalanche</option>
+                        <option value="arbitrum">Arbitrum</option>
+                        <option value="optimism">Optimism</option>
+                        <option value="solana">Solana</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="coinWebsite">Website (Opcional):</label>
+                    <input type="url" id="coinWebsite" placeholder="https://exemplo.com">
+                </div>
+                <div class="form-group">
+                    <label for="coinDescription">Descrição (Opcional):</label>
+                    <textarea id="coinDescription" rows="3" placeholder="Uma breve descrição da moeda..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="coinLogo">URL do Logo (Opcional):</label>
+                    <input type="url" id="coinLogo" placeholder="https://exemplo.com/logo.png">
+                </div>
+
+                <h4>Redes Sociais (Opcional)</h4>
+                <div class="form-group">
+                    <label for="coinTwitter">Twitter URL:</label>
+                    <input type="url" id="coinTwitter" placeholder="https://twitter.com/seutoken">
+                </div>
+                <div class="form-group">
+                    <label for="coinTelegram">Telegram URL:</label>
+                    <input type="url" id="coinTelegram" placeholder="https://t.me/seutoken">
+                </div>
+                <div class="form-group">
+                    <label for="coinDiscord">Discord URL:</label>
+                    <input type="url" id="coinDiscord" placeholder="https://discord.com/invite/seutoken">
+                </div>
+                <div class="form-group">
+                    <label for="coinReddit">Reddit URL:</label>
+                    <input type="url" id="coinReddit" placeholder="https://reddit.com/r/seutoken">
+                </div>
+                <div class="form-group">
+                    <label for="coinFacebook">Facebook URL:</label>
+                    <input type="url" id="coinFacebook" placeholder="https://facebook.com/seutoken">
+                </div>
+                <div class="form-group">
+                    <label for="coinBitcointalk">Bitcointalk URL:</label>
+                    <input type="url" id="coinBitcointalk" placeholder="https://bitcointalk.org/index.php?topic=...">
+                </div>
+                <div class="form-group">
+                    <label for="coinGithub">GitHub URL:</label>
+                    <input type="url" id="coinGithub" placeholder="https://github.com/seutoken">
+                </div>
+                <div class="form-group">
+                    <label for="coinMedium">Medium URL:</label>
+                    <input type="url" id="coinMedium" placeholder="https://medium.com/@seutoken">
+                </div>
+                <div class="form-group">
+                    <label for="coinYoutube">YouTube URL:</label>
+                    <input type="url" id="coinYoutube" placeholder="https://youtube.com/channel/seutoken">
+                </div>
+
+                <button type="submit" class="btn-submit"><i class="fas fa-plus-circle"></i> Adicionar Moeda</button>
+            </form>
+        </div>
+
+        <div id="trending" class="tab-content">
+            <div class="card table-card">
+                <div class="table-header">
+                    <h2>Trending Coins</h2>
+                    <button id="refreshTrending" class="btn-refresh"><i class="fas fa-sync-alt"></i> Atualizar</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="coin-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Moeda</th>
+                                <th>Preço</th>
+                                <th>24h %</th>
+                                <th>Volume 24h</th>
+                                <th>Liquidez</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trendingTableBody">
+                            <tr><td colspan="7" class="text-center">Carregando moedas trending...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="new-listings" class="tab-content">
+            <div class="card table-card">
+                <h2>New Listings</h2>
+                <div class="table-responsive">
+                    <table class="coin-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Moeda</th>
+                                <th>Preço</th>
+                                <th>24h %</th>
+                                <th>Data Adicionada</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="newListingsTableBody">
+                            <tr><td colspan="6" class="text-center">Carregando novos lançamentos...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="all-crypto" class="tab-content"> 
             <div class="card table-card">
                 <div class="table-responsive">
                     <table id="cryptoTable" class="coin-table">
@@ -141,7 +278,7 @@
                                     <button class="btn-action view-detail" data-coin-id="ethereum"><i class="fas fa-info-circle"></i> Detalhes</button>
                                 </td>
                             </tr>
-                            </tbody>
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -155,11 +292,16 @@
             <h2>Categories Section</h2>
             <p>Content for Categories will go here.</p>
         </div>
+
         <div id="coinDetailModal" class="modal">
             <div class="modal-content large">
                 <span class="close">&times;</span>
                 <div id="coinDetailContent">
+                    <div class="modal-loader" style="display: none;">
+                        <div class="loader-spinner"></div>
+                        <p>Carregando detalhes da moeda...</p>
                     </div>
+                </div>
             </div>
         </div>
     </main>
@@ -192,48 +334,35 @@
         </a>
     </nav>
 
-
-  
     <script>
-        // Script simples para alternar o tema (você pode integrar isso ao seu script.js)
         document.addEventListener('DOMContentLoaded', () => {
             const themeToggleBtn = document.getElementById('theme-toggle');
             const body = document.body;
 
-            // Carrega o tema salvo no localStorage ou define como dark por padrão
             const currentTheme = localStorage.getItem('theme') || 'dark';
             if (currentTheme === 'light') {
                 body.classList.add('light-mode');
-                themeToggleBtn.innerHTML = '<i class="fas fa-moon"></i>'; // Ícone de lua para mudar para escuro
+                themeToggleBtn.innerHTML = '<i class="fas fa-moon"></i>';
             } else {
-                themeToggleBtn.innerHTML = '<i class="fas fa-sun"></i>'; // Ícone de sol para mudar para claro
+                themeToggleBtn.innerHTML = '<i class="fas fa-sun"></i>';
             }
 
             themeToggleBtn.addEventListener('click', () => {
                 body.classList.toggle('light-mode');
                 if (body.classList.contains('light-mode')) {
                     localStorage.setItem('theme', 'light');
-                    themeToggleBtn.innerHTML = '<i class="fas fa-moon"></i>'; // Ícone de lua
+                    themeToggleBtn.innerHTML = '<i class="fas fa-moon"></i>';
                 } else {
                     localStorage.setItem('theme', 'dark');
-                    themeToggleBtn.innerHTML = '<i class="fas fa-sun"></i>'; // Ícone de sol
+                    themeToggleBtn.innerHTML = '<i class="fas fa-sun"></i>';
                 }
             });
 
-            // Lógica para as abas (se você ainda as usar para desktop)
-            document.querySelectorAll('.main-nav .tab-link').forEach(tab => {
-                tab.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    document.querySelectorAll('.tab-link').forEach(link => link.classList.remove('active'));
-                    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-
-                    this.classList.add('active');
-                    const targetTab = this.getAttribute('data-tab');
-                    document.getElementById(targetTab).classList.add('active');
-                });
-            });
-
-            // Lógica para as sub-abas/filtros (se você ainda as usar para desktop)
+            // Lógica para as sub-abas/filtros (ainda pode ser útil, mas o principal script.js deve cuidar disso)
+            // Se o script.js principal já lida com ".tab-link", você pode remover este bloco
+            // ou garantir que ele não cause conflitos de manipulação de classes.
+            // Eu o deixei aqui por enquanto, mas se o script.js for o principal,
+            // pode ser removido para evitar duplicidade.
             document.querySelectorAll('.sub-nav .sub-tab-link').forEach(tab => {
                 tab.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -245,7 +374,7 @@
         });
     </script>
 
-        <script src="top.js"></script>
+    <script src="top.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
