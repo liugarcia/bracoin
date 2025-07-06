@@ -10,8 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const CACHE_EXPIRATION_TIME = 5 * 60 * 1000; // 5 minutos em milissegundos
 
     // --- NOVA ADIÇÃO: LISTA DE SÍMBOLOS DE MOEDAS EMBRULHADAS A SEREM IGNORADAS ---
-    const WRAPPED_COINS_SYMBOLS = ['wbtc', 'weth', 'seth' ,'wsteth', 'weeth', 'cbbtc' , 'reth', 'rseth' , 'meth' ,'lbtc', 'clbtc', 'ezeth' , 'wbnb', 'solvbtc' , 'oseth' , 'steth' , 'bsc-usd' , 'jitosol' , 'bnsol' , 'jupsol' , 'msol'  , 'lseth', 'syrupusdc' , 'usdt0' , 'usdtb' , 'jlp' , 'susds' , 'buidl' , 'susde' , 'usde' , 'usds' , 'usdx' , 'usdy' , 'whype']; // Adicione outros símbolos conforme necessário, SEMPRE EM MINÚSCULAS
+    const WRAPPED_COINS_SYMBOLS = ['wbtc', 'weth', 'seth', 'wsteth', 'weeth', 'cbbtc', 'reth', 'rseth', 'meth', 'lbtc', 'clbtc', 'ezeth', 'wbnb', 'solvbtc', 'oseth', 'steth', 'bsc-usd', 'jitosol', 'bnsol', 'jupsol', 'msol', 'lseth', 'syrupusdc', 'usdt0', 'usdtb', 'jlp', 'susds', 'buidl', 'susde', 'usde', 'usds', 'usdx', 'usdy', 'whype']; // Adicione outros símbolos conforme necessário, SEMPRE EM MINÚSCULAS
     // -------------------------------------------------------------------------
+
+    // Variável para armazenar os dados das moedas em memória para acesso rápido
+    let cachedCoinsData = null;
 
     /**
      * Exibe ou oculta o loader global.
@@ -91,12 +94,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const cacheTimestamp = localStorage.getItem(CACHE_KEY + '_timestamp');
 
             if (cachedData && cacheTimestamp && (Date.now() - cacheTimestamp < CACHE_EXPIRATION_TIME)) {
-                console.log('Dados Top 100 carregados do cache.');
-                const coins = JSON.parse(cachedData);
-                // --- NOVA CHAMADA: FILTRAR MOEDAS DO CACHE ---
-                const filteredCoins = filterWrappedCoins(coins);
+                console.log('Dados Top 100 carregados do cache (localStorage).');
+                const coinsFromCache = JSON.parse(cachedData);
+                cachedCoinsData = coinsFromCache; // Armazena também em memória
+                const filteredCoins = filterWrappedCoins(coinsFromCache);
                 renderTop100Table(filteredCoins);
-                // ------------------------------------------
                 return;
             }
 
@@ -119,14 +121,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const coins = await response.json();
 
-            // --- NOVA ADIÇÃO: FILTRAR MOEDAS DA API ANTES DE CACHE E RENDERIZAR ---
-            const filteredCoins = filterWrappedCoins(coins);
-            // -----------------------------------------------------------------
-
-            // Armazenar no cache os dados **originais** (sem filtrar), para que se a lista de ignorados mudar, o cache ainda possa ser reprocessado
+            // Armazenar no cache do localStorage os dados originais (sem filtrar),
+            // para que se a lista de ignorados mudar, o cache ainda possa ser reprocessado
             localStorage.setItem(CACHE_KEY, JSON.stringify(coins));
             localStorage.setItem(CACHE_KEY + '_timestamp', Date.now().toString());
 
+            cachedCoinsData = coins; // Armazena os dados brutos da API em memória
+
+            const filteredCoins = filterWrappedCoins(coins);
             renderTop100Table(filteredCoins);
 
         } catch (error) {
@@ -138,7 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- NOVA FUNÇÃO: FILTRA MOEDAS EMBRULHADAS ---
     /**
      * Filtra uma lista de moedas, removendo aquelas que são consideradas "embrulhadas".
      * @param {Array} coins - Array de objetos de moedas.
@@ -162,7 +163,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return filtered;
     }
-    // -----------------------------------------------------------------
 
     /**
      * Renderiza a tabela das Top 100 moedas.
@@ -186,19 +186,28 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event Listener para redirecionar para a página de detalhes da moeda
     top100TableBody.addEventListener('click', (event) => {
         let targetRow = event.target.closest('tr');
-        if (event.target.closest('.btn-action')) {
-            const coinId = event.target.closest('.btn-action').dataset.coinId;
-            window.location.href = `coin-details.html?id=${coinId}`;
-        } else if (targetRow && targetRow.dataset.coinId) {
-            const coinId = targetRow.dataset.coinId;
+        const coinId = (event.target.closest('.btn-action') || targetRow)?.dataset.coinId;
+
+        if (coinId) {
+            // Ao invés de apenas redirecionar, você pode:
+            // 1. Salvar a moeda específica em sessionStorage (se os dados forem pequenos/temporários)
+            // 2. Confiar que coin-details.html vai buscar do localStorage
+            // 3. (Mais complexo) Se fosse uma SPA, passar o objeto coin diretamente
+
+            // Para o seu caso, onde coin-details.html é uma nova página,
+            // a melhor abordagem é que coin-details.html seja responsável por
+            // ler do localStorage e encontrar a moeda.
+
             window.location.href = `coin-details.html?id=${coinId}`;
         }
     });
 
     // Event Listeners
     refreshTop100Button.addEventListener('click', () => {
+        // Limpar o cache do localStorage e da memória
         localStorage.removeItem(CACHE_KEY);
         localStorage.removeItem(CACHE_KEY + '_timestamp');
+        cachedCoinsData = null;
         fetchTop100Coins();
     });
 
