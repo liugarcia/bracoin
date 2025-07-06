@@ -9,182 +9,152 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+    <div class="top-bar">
+        <span class="time">22:00</span>
+        <div class="status-icons">
+            <i class="fas fa-wifi"></i>
+            <i class="fas fa-battery-full"></i>
+        </div>
+    </div>
+
     <header class="main-header">
         <div class="container">
             <div class="header-content">
-                <a href="#" class="logo">
-                    <i class="fas fa-coins"></i> CryptoList
+                <a href="#" class="home-icon" aria-label="Página Inicial">
+                    <i class="fas fa-home"></i>
                 </a>
-                <nav class="main-nav">
-                    <ul id="mainTabs">
-                        <li><a href="#" class="tab-link active" data-tab="top100"><i class="fas fa-chart-line"></i> Top 100</a></li>
-                        <li><a href="#" class="tab-link" data-tab="trending"><i class="fas fa-fire"></i> Trending</a></li>
-                        <li><a href="#" class="tab-link" data-tab="new-listings"><i class="fas fa-star"></i> Novas Listagens</a></li>
-                        <li><a href="#" class="tab-link" data-tab="add-coin"><i class="fas fa-plus-circle"></i> Adicionar Moeda</a></li>
-                    </ul>
-                </nav>
-                <div class="search-box">
-                    <input type="text" id="globalSearch" placeholder="Buscar moedas...">
+                
+                <div class="search-box mobile-search-bar">
+                    <input type="text" id="globalSearch" placeholder="Buscar moedas..." class="search-input-mock">
                     <button aria-label="Buscar"><i class="fas fa-search"></i></button>
                 </div>
+                
+                <a href="#" class="edit-icon" aria-label="Editar">
+                    <i class="fas fa-pencil-alt"></i>
+                </a>
+
+                <button id="theme-toggle" class="theme-toggle-btn" aria-label="Alternar Tema">
+                    <i class="fas fa-moon"></i>
+                </button>
             </div>
+            
+            <nav class="main-nav desktop-nav">
+                <ul id="mainTabs">
+                    <li><a href="#" class="tab-link active" data-tab="all-crypto">All Crypto</a></li>
+                    <li><a href="#" class="tab-link" data-tab="nfts">NFTs</a></li>
+                    <li><a href="#" class="tab-link" data-tab="categories">Categories</a></li>
+                    <li><a href="#" class="tab-link" data-tab="defi">DeFi</a></li>
+                    <li><a href="#" class="tab-link" data-tab="games">Games</a></li>
+                    <li><a href="#" class="tab-link" data-tab="launchpad">Launchpad</a></li>
+                    <li><a href="#" class="tab-link" data-tab="watchlist">Watchlist</a></li>
+                </ul>
+            </nav>
         </div>
     </header>
 
     <main class="container main-content-area">
-        <div id="top100" class="tab-content active">
-            <div class="section-header">
-                <h2><i class="fas fa-chart-line"></i> Top 100 Moedas por Capitalização de Mercado</h2>
-                <button id="refreshTop100" class="btn-primary-outline"><i class="fas fa-sync-alt"></i> Atualizar</button>
+        <section class="main-metrics">
+            <div class="metric-card">
+                <span class="metric-label">Marketcap</span>
+                <span class="metric-value">$3.36T</span>
+                <span class="metric-change positive"><i class="fas fa-caret-up"></i> 0.81%</span>
             </div>
+            <div class="metric-card">
+                <span class="metric-label">Volume 24h</span>
+                <span class="metric-value">$308.76B</span>
+                <span class="metric-change negative"><i class="fas fa-caret-down"></i> 4.05%</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Dominance</span>
+                <span class="metric-value">BTC: 47.5% ETH: 18.2%</span>
+            </div>
+            <div class="metric-card gas-fee-card">
+                <span class="metric-label">Ethereum Gas Fee</span>
+                <span class="metric-value">50 Gwei</span>
+                <div class="gas-indicator good"></div> </div>
+        </section>
+
+        <section class="filters-section">
+            <nav class="sub-nav">
+                <ul>
+                    <li><a href="#" class="sub-tab-link active">All Crypto</a></li>
+                    <li><a href="#" class="sub-tab-link">NFTs</a></li>
+                    <li><a href="#" class="sub-tab-link">Categories</a></li>
+                    <li><a href="#" class="sub-tab-link">Sale</a></li>
+                    </ul>
+            </nav>
+            <div class="action-buttons">
+                <button class="filter-button"><i class="fas fa-filter"></i> Filters</button>
+                <button class="sort-button"><i class="fas fa-sort"></i> Sort</button>
+            </div>
+        </section>
+
+        <div id="all-crypto" class="tab-content active">
             <div class="card table-card">
                 <div class="table-responsive">
-                    <table id="top100Table" class="coin-table">
+                    <table id="cryptoTable" class="coin-table">
                         <thead>
                             <tr>
                                 <th>#</th>
                                 <th>Moeda</th>
                                 <th>Preço</th>
-                                <th>24h</th>
-                                <th>Capitalização de Mercado</th>
-                                <th>Volume 24h</th>
-                                <th>Ações</th>
+                                <th>24h %</th>
+                                <th class="desktop-only">Capitalização de Mercado</th>
+                                <th class="desktop-only">Volume 24h</th>
+                                <th class="desktop-only">Ações</th>
                             </tr>
                         </thead>
-                        <tbody id="top100TableBody">
+                        <tbody id="cryptoTableBody">
+                            <tr>
+                                <td>1</td>
+                                <td class="coin-cell">
+                                    <img src="https://assets.coingecko.com/coins/images/1/small/bitcoin.png?1547033579" alt="BTC Logo" class="coin-logo">
+                                    <div class="coin-info">
+                                        <span class="coin-name">Bitcoin</span>
+                                        <span class="coin-symbol">BTC</span>
+                                    </div>
+                                    <button class="btn-buy">Buy</button>
+                                </td>
+                                <td class="price">$69,000.00</td>
+                                <td><span class="price-change positive">+1.23%</span></td>
+                                <td class="desktop-only">$1.35T</td>
+                                <td class="desktop-only">$35.2B</td>
+                                <td class="desktop-only">
+                                    <button class="btn-action view-detail" data-coin-id="bitcoin"><i class="fas fa-info-circle"></i> Detalhes</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td class="coin-cell">
+                                    <img src="https://assets.coingecko.com/coins/images/279/small/ethereum.png?1595348880" alt="ETH Logo" class="coin-logo">
+                                    <div class="coin-info">
+                                        <span class="coin-name">Ethereum</span>
+                                        <span class="coin-symbol">ETH</span>
+                                    </div>
+                                    <button class="btn-buy">Buy</button>
+                                </td>
+                                <td class="price">$3,800.00</td>
+                                <td><span class="price-change negative">-0.78%</span></td>
+                                <td class="desktop-only">$450.0B</td>
+                                <td class="desktop-only">$18.5B</td>
+                                <td class="desktop-only">
+                                    <button class="btn-action view-detail" data-coin-id="ethereum"><i class="fas fa-info-circle"></i> Detalhes</button>
+                                </td>
+                            </tr>
                             </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <div id="trending" class="tab-content">
-            <div class="section-header">
-                <h2><i class="fas fa-fire"></i> Moedas em Alta (Maior Volume 24h)</h2>
-                <button id="refreshTrending" class="btn-primary-outline"><i class="fas fa-sync-alt"></i> Atualizar</button>
-            </div>
-            <div class="card table-card">
-                <div class="table-responsive">
-                    <table id="trendingTable" class="coin-table">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Moeda</th>
-                                <th>Preço</th>
-                                <th>24h</th>
-                                <th>Volume 24h</th>
-                                <th>Liquidez</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="trendingTableBody">
-                            </tbody>
-                    </table>
-                </div>
-            </div>
+        <div id="nfts" class="tab-content">
+            <h2>NFTs Section</h2>
+            <p>Content for NFTs will go here.</p>
         </div>
-
-        <div id="new-listings" class="tab-content">
-            <div class="section-header">
-                <h2><i class="fas fa-star"></i> Novas Listagens</h2>
-                <span>Últimas 20 moedas adicionadas</span>
-            </div>
-            <div class="card table-card">
-                <div class="table-responsive">
-                    <table id="newListingsTable" class="coin-table">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Moeda</th>
-                                <th>Preço</th>
-                                <th>24h</th>
-                                <th>Adicionada em</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="newListingsTableBody">
-                            </tbody>
-                    </table>
-                </div>
-            </div>
+        <div id="categories" class="tab-content">
+            <h2>Categories Section</h2>
+            <p>Content for Categories will go here.</p>
         </div>
-
-        <div id="add-coin" class="tab-content">
-            <div class="section-header">
-                <h2><i class="fas fa-plus-circle"></i> Adicionar Nova Moeda</h2>
-                <span>Preencha todos os campos para listar sua moeda</span>
-            </div>
-            <div class="card form-card">
-                <form id="coinForm">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="coinName"><i class="fas fa-tag"></i> Nome da Moeda:</label>
-                            <input type="text" id="coinName" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="coinSymbol"><i class="fas fa-code"></i> Símbolo:</label>
-                            <input type="text" id="coinSymbol" required>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="coinContract"><i class="fas fa-file-contract"></i> Contrato:</label>
-                            <input type="text" id="coinContract" required placeholder="0x...">
-                        </div>
-                        <div class="form-group">
-                            <label for="coinNetwork"><i class="fas fa-link"></i> Blockchain:</label>
-                            <select id="coinNetwork" required>
-                                <option value="">Selecione...</option>
-                                <option value="eth">Ethereum</option>
-                                <option value="bsc">Binance Smart Chain</option>
-                                <option value="polygon">Polygon</option>
-                                <option value="avax">Avalanche</option>
-                                <option value="arbitrum">Arbitrum</option>
-                                <option value="optimism">Optimism</option>
-                                <option value="solana">Solana</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="coinWebsite"><i class="fas fa-globe"></i> Website:</label>
-                        <input type="url" id="coinWebsite" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="coinDescription"><i class="fas fa-align-left"></i> Descrição:</label>
-                        <textarea id="coinDescription" rows="3" required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="coinLogo"><i class="fas fa-image"></i> URL do Logo:</label>
-                        <input type="url" id="coinLogo" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label><i class="fas fa-share-alt"></i> Redes Sociais:</label>
-                        <div class="social-inputs">
-                            <div class="social-input">
-                                <i class="fab fa-twitter"></i>
-                                <input type="url" id="coinTwitter" placeholder="https://twitter.com/...">
-                            </div>
-                            <div class="social-input">
-                                <i class="fab fa-telegram"></i>
-                                <input type="url" id="coinTelegram" placeholder="https://t.me/...">
-                            </div>
-                            <div class="social-input">
-                                <i class="fab fa-discord"></i>
-                                <input type="url" id="coinDiscord" placeholder="https://discord.gg/...">
-                            </div>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Adicionar Moeda</button>
-                </form>
-            </div>
-        </div>
-
         <div id="coinDetailModal" class="modal">
             <div class="modal-content large">
                 <span class="close">&times;</span>
@@ -199,19 +169,80 @@
         <p>Carregando dados...</p>
     </div>
 
-    <footer class="main-footer">
-        <div class="container">
-            <p>&copy; 2023 CryptoList. Dados via GeckoTerminal API.</p>
-            <div class="footer-social-links">
-                <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                <a href="#" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
-                <a href="#" aria-label="Discord"><i class="fab fa-discord"></i></a>
-                <a href="#" aria-label="Reddit"><i class="fab fa-reddit"></i></a>
-            </div>
-        </div>
-    </footer>
+    <nav class="mobile-bottom-nav">
+        <a href="#" class="nav-item active">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-star"></i>
+            <span>Watchlist</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-rocket"></i>
+            <span>Launchpad</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-chart-bar"></i>
+            <span>Charts</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+        </a>
+    </nav>
 
     <script src="top.js"></script>
     <script src="script.js"></script>
+    <script>
+        // Script simples para alternar o tema (você pode integrar isso ao seu script.js)
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const body = document.body;
+
+            // Carrega o tema salvo no localStorage ou define como dark por padrão
+            const currentTheme = localStorage.getItem('theme') || 'dark';
+            if (currentTheme === 'light') {
+                body.classList.add('light-mode');
+                themeToggleBtn.innerHTML = '<i class="fas fa-moon"></i>'; // Ícone de lua para mudar para escuro
+            } else {
+                themeToggleBtn.innerHTML = '<i class="fas fa-sun"></i>'; // Ícone de sol para mudar para claro
+            }
+
+            themeToggleBtn.addEventListener('click', () => {
+                body.classList.toggle('light-mode');
+                if (body.classList.contains('light-mode')) {
+                    localStorage.setItem('theme', 'light');
+                    themeToggleBtn.innerHTML = '<i class="fas fa-moon"></i>'; // Ícone de lua
+                } else {
+                    localStorage.setItem('theme', 'dark');
+                    themeToggleBtn.innerHTML = '<i class="fas fa-sun"></i>'; // Ícone de sol
+                }
+            });
+
+            // Lógica para as abas (se você ainda as usar para desktop)
+            document.querySelectorAll('.main-nav .tab-link').forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.querySelectorAll('.tab-link').forEach(link => link.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+                    this.classList.add('active');
+                    const targetTab = this.getAttribute('data-tab');
+                    document.getElementById(targetTab).classList.add('active');
+                });
+            });
+
+            // Lógica para as sub-abas/filtros (se você ainda as usar para desktop)
+            document.querySelectorAll('.sub-nav .sub-tab-link').forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.querySelectorAll('.sub-tab-link').forEach(link => link.classList.remove('active'));
+                    this.classList.add('active');
+                    // Aqui você adicionaria a lógica para filtrar a tabela, se aplicável
+                });
+            });
+        });
+    </script>
 </body>
 </html>
