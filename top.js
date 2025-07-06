@@ -6,15 +6,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const globalLoader = document.getElementById('globalLoader');
 
     const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3/coins/markets';
-    const CACHE_KEY = 'top100CoinsCache';
+    const CACHE_KEY = 'top100CoinsCache'; // Cache para os dados brutos da API de Top 100
     const CACHE_EXPIRATION_TIME = 5 * 60 * 1000; // 5 minutos em milissegundos
+
+    // --- CHAVE DE CACHE PARA A LISTA FILTRADA DE MOEDAS (usada por coin-details.js) ---
+    const FILTERED_COIN_LIST_CACHE_KEY = 'cachedCoinList'; 
+    // --------------------------------------------------------------------------------
 
     // --- NOVA ADIÇÃO: LISTA DE SÍMBOLOS DE MOEDAS EMBRULHADAS A SEREM IGNORADAS ---
     const WRAPPED_COINS_SYMBOLS = ['wbtc', 'weth', 'seth', 'wsteth', 'weeth', 'cbbtc', 'reth', 'rseth', 'meth', 'lbtc', 'clbtc', 'ezeth', 'wbnb', 'solvbtc', 'oseth', 'steth', 'bsc-usd', 'jitosol', 'bnsol', 'jupsol', 'msol', 'lseth', 'syrupusdc', 'usdt0', 'usdtb', 'jlp', 'susds', 'buidl', 'susde', 'usde', 'usds', 'usdx', 'usdy', 'whype']; // Adicione outros símbolos conforme necessário, SEMPRE EM MINÚSCULAS
     // -------------------------------------------------------------------------
 
     // Variável para armazenar os dados das moedas em memória para acesso rápido
-    let cachedCoinsData = null;
+    let cachedCoinsData = null; // Isto ainda guarda os dados brutos, antes da filtragem
 
     /**
      * Exibe ou oculta o loader global.
@@ -99,6 +103,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 cachedCoinsData = coinsFromCache; // Armazena também em memória
                 const filteredCoins = filterWrappedCoins(coinsFromCache);
                 renderTop100Table(filteredCoins);
+                // --- NOVA ADIÇÃO: SALVAR A LISTA FILTRADA PARA FALLBACK DO coin-details.js ---
+                localStorage.setItem(FILTERED_COIN_LIST_CACHE_KEY, JSON.stringify(filteredCoins));
+                // ---------------------------------------------------------------------------
                 return;
             }
 
@@ -106,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const params = new URLSearchParams({
                 vs_currency: 'brl',
                 order: 'market_cap_desc',
-                per_page: 250, // Aumentamos para buscar mais e garantir 100 moedas após a filtragem
+                per_page: 250, 
                 page: 1,
                 sparkline: false,
                 price_change_percentage: '24h'
@@ -121,8 +128,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const coins = await response.json();
 
-            // Armazenar no cache do localStorage os dados originais (sem filtrar),
-            // para que se a lista de ignorados mudar, o cache ainda possa ser reprocessado
             localStorage.setItem(CACHE_KEY, JSON.stringify(coins));
             localStorage.setItem(CACHE_KEY + '_timestamp', Date.now().toString());
 
@@ -130,11 +135,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const filteredCoins = filterWrappedCoins(coins);
             renderTop100Table(filteredCoins);
+            // --- NOVA ADIÇÃO: SALVAR A LISTA FILTRADA PARA FALLBACK DO coin-details.js ---
+            localStorage.setItem(FILTERED_COIN_LIST_CACHE_KEY, JSON.stringify(filteredCoins));
+            // ---------------------------------------------------------------------------
 
         } catch (error) {
             console.error('Erro ao carregar Top 100 moedas:', error);
-            top100TableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--danger-color);">${error.message}</td></tr>`;
-            alert('Erro ao carregar dados das Top 100 moedas: ' + error.message);
+            top100TableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--danger-color);">Erro ao carregar dados: ${error.message}</td></tr>`;
+            // Não usamos alert aqui para evitar interromper o usuário. O erro no console é suficiente.
         } finally {
             toggleLoader(false);
         }
@@ -143,20 +151,17 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * Filtra uma lista de moedas, removendo aquelas que são consideradas "embrulhadas".
      * @param {Array} coins - Array de objetos de moedas.
-     * @returns {Array} - Array de moedas filtradas.
+     * @returns {Array} - Array de moedas filtradas (até 100).
      */
     function filterWrappedCoins(coins) {
         const filtered = [];
         let count = 0;
         for (const coin of coins) {
-            // Converte o símbolo para minúsculas para comparação
             const symbolLower = coin.symbol.toLowerCase();
-            // Verifica se o símbolo está na lista de moedas embrulhadas
             if (!WRAPPED_COINS_SYMBOLS.includes(symbolLower)) {
                 filtered.push(coin);
                 count++;
             }
-            // Parar quando tivermos 100 moedas válidas
             if (count >= 100) {
                 break;
             }
@@ -171,10 +176,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderTop100Table(coins) {
         top100TableBody.innerHTML = '';
         if (coins.length === 0) {
-            top100TableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Nenhuma moeda encontrada.</td></tr>`;
+            top100TableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Nenhuma moeda encontrada após a filtragem.</td></tr>`;
             return;
         }
-        // Usamos um contador `rank` separado para manter a classificação correta após a filtragem
         let rank = 1;
         for (const coin of coins) {
             const row = createCoinTableRow(coin, rank);
@@ -183,35 +187,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Event Listener para redirecionar para a página de detalhes da moeda
     top100TableBody.addEventListener('click', (event) => {
-        let targetRow = event.target.closest('tr');
-        const coinId = (event.target.closest('.btn-action') || targetRow)?.dataset.coinId;
+        let targetElement = event.target.closest('tr') || event.target.closest('.btn-action');
+        const coinId = targetElement?.dataset.coinId;
 
         if (coinId) {
-            // Ao invés de apenas redirecionar, você pode:
-            // 1. Salvar a moeda específica em sessionStorage (se os dados forem pequenos/temporários)
-            // 2. Confiar que coin-details.html vai buscar do localStorage
-            // 3. (Mais complexo) Se fosse uma SPA, passar o objeto coin diretamente
-
-            // Para o seu caso, onde coin-details.html é uma nova página,
-            // a melhor abordagem é que coin-details.html seja responsável por
-            // ler do localStorage e encontrar a moeda.
-
             window.location.href = `coin-details.html?id=${coinId}`;
         }
     });
 
-    // Event Listeners
     refreshTop100Button.addEventListener('click', () => {
-        // Limpar o cache do localStorage e da memória
         localStorage.removeItem(CACHE_KEY);
         localStorage.removeItem(CACHE_KEY + '_timestamp');
+        localStorage.removeItem(FILTERED_COIN_LIST_CACHE_KEY); // Limpa também o cache da lista filtrada
         cachedCoinsData = null;
         fetchTop100Coins();
     });
 
-    // Função para inicializar a aba Top 100 quando ela se torna ativa
     window.initializeTop100Tab = function() {
         fetchTop100Coins();
     };
