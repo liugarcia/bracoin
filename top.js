@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const CACHE_EXPIRATION_TIME = 5 * 60 * 1000; // 5 minutos em milissegundos
 
     // --- NOVA ADIÇÃO: LISTA DE SÍMBOLOS DE MOEDAS EMBRULHADAS A SEREM IGNORADAS ---
-    const WRAPPED_COINS_SYMBOLS = ['wbtc', 'weth', 'seth' ,'wsteth', 'weeth', 'cbbtc' , 'reth', 'rseth' , 'meth' ,'lbtc', 'clbtc', 'ezeth' , 'wbnb', 'solvbtc' , 'oseth' , 'steth' , 'bsc-usd' , 'jitosol' , 'bnsol' , 'jupsol' , 'msol']; // Adicione outros símbolos conforme necessário, SEMPRE EM MINÚSCULAS
+    const WRAPPED_COINS_SYMBOLS = ['wbtc', 'weth', 'seth' ,'wsteth', 'weeth', 'cbbtc' , 'reth', 'rseth' , 'meth' ,'lbtc', 'clbtc', 'ezeth' , 'wbnb', 'solvbtc' , 'oseth' , 'steth' , 'bsc-usd' , 'jitosol' , 'bnsol' , 'jupsol' , 'msol'  , 'lseth', 'syrupusdc' , 'usdt0' , 'usdtb' , 'jlp' , 'susds' , 'buidl' , 'susde' , 'usde' , 'usds']; // Adicione outros símbolos conforme necessário, SEMPRE EM MINÚSCULAS
     // -------------------------------------------------------------------------
 
     /**
