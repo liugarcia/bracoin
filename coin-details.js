@@ -2,6 +2,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const coinDetailsLoader = document.getElementById('coinDetailsLoader');
     const coinDetailsContent = document.getElementById('coinDetailsContent');
     const priceChartLoader = document.getElementById('priceChartLoader');
+    const priceChartContainer = document.getElementById('priceChart'); // Re-obtenha o container aqui
+
+    // NEW: Element to display loading message
+    const chartLoadingMessage = document.createElement('p');
+    chartLoadingMessage.style.textAlign = 'center';
+    chartLoadingMessage.style.color = 'var(--text-muted)';
+    chartLoadingMessage.style.paddingTop = '50px';
+    chartLoadingMessage.textContent = 'Carregando dados do gráfico...';
+    // Initially hidden, will be shown by toggleChartLoader
+    chartLoadingMessage.style.display = 'none'; 
+    priceChartContainer.parentNode.insertBefore(chartLoadingMessage, priceChartContainer.nextSibling); // Insert after chart container
 
     const coinImage = document.getElementById('coinImage');
     const coinName = document.getElementById('coinName');
@@ -20,7 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const socialLinksContainer = document.getElementById('socialLinksContainer');
 
     const chartControls = document.querySelector('.chart-controls');
-    const priceChartContainer = document.getElementById('priceChart');
     let coinChart;
 
     const COINGECKO_API_BASE_URL = 'https://api.coingecko.com/api/v3';
@@ -40,9 +50,20 @@ document.addEventListener('DOMContentLoaded', () => {
         coinDetailsContent.style.display = showLoader ? 'none' : 'block';
     }
 
+    /**
+     * Exibe ou oculta o loader do gráfico e a mensagem, e alterna a visibilidade do container do gráfico.
+     * @param {boolean} showLoader - true para mostrar o loader/mensagem, false para ocultar e mostrar o gráfico.
+     */
     function toggleChartLoader(showLoader) {
-        priceChartLoader.style.display = showLoader ? 'block' : 'none';
-        priceChartContainer.style.display = showLoader ? 'none' : 'block';
+        if (showLoader) {
+            priceChartLoader.style.display = 'block';
+            chartLoadingMessage.style.display = 'block'; // Show the message
+            priceChartContainer.style.display = 'none'; // Hide the chart
+        } else {
+            priceChartLoader.style.display = 'none';
+            chartLoadingMessage.style.display = 'none'; // Hide the message
+            priceChartContainer.style.display = 'block'; // Show the chart
+        }
     }
 
     function formatCurrency(value) {
@@ -66,14 +87,16 @@ document.addEventListener('DOMContentLoaded', () => {
      * Renderiza o gráfico. Lida com o loader do gráfico.
      */
     function renderPriceChart(ohlcData) {
-        toggleChartLoader(true); // Sempre mostra o loader enquanto o gráfico está sendo processado
-
+        // Clear any existing content from the chart container
+        priceChartContainer.innerHTML = ''; 
+        
         if (!ohlcData || ohlcData.length === 0) {
             console.warn('Nenhum dado OHLC disponível para renderizar o gráfico. Mantendo loader ativo.');
             if (coinChart) {
                 coinChart.destroy();
                 coinChart = null;
             }
+            toggleChartLoader(true); // Ensure loader and message are visible
             return; // Retorna, deixando o loader visível
         }
 
@@ -170,18 +193,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (Date.now() - timestamp < CHART_DATA_CACHE_EXPIRATION_TIME) {
                     console.log(`Dados do gráfico para '${coinId}' (${days} dias) carregados do cache válido.`);
-                    toggleChartLoader(false);
+                    toggleChartLoader(false); // If valid cache, hide loader immediately
                     return data;
                 } else {
                     console.log(`Cache do gráfico para '${coinId}' (${days} dias) expirado. Tentando buscar da API.`);
                 }
             } catch (e) {
                 console.error('Erro ao parsear cache do gráfico:', e);
-                localStorage.removeItem(cacheKey); // Remove cache corrompido
+                localStorage.removeItem(cacheKey); // Remove corrompido
             }
         }
         
-        toggleChartLoader(true); // Mostra o loader enquanto tenta buscar ou re-tentar
+        toggleChartLoader(true); // Show loader while trying to fetch or retry
 
         try {
             let validDays = days;
@@ -206,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             renderPriceChart(retryOhlcData);
                         }, 60 * 1000); // 1 minuto
                     }
-                    return []; // Mantém o loader visível
+                    return []; // Keep loader visible, chart won't render
                 }
             }
 
@@ -231,29 +254,21 @@ document.addEventListener('DOMContentLoaded', () => {
                         renderPriceChart(retryOhlcData);
                     }, 60 * 1000);
                 }
-                return []; // Mantém o loader visível
+                return []; // Keep loader visible, chart won't render
             }
         }
     }
 
-    /**
-     * Preenche os elementos HTML com os detalhes da moeda.
-     * @param {Object} coin - Objeto de dados da moeda. Pode ser completo da API, do cache completo ou um objeto simplificado do cache de lista.
-     * @param {boolean} isFallbackData - Indica se os dados são do fallback (para ajustar a exibição).
-     */
     function renderCoinDetails(coin, isFallbackData = false) {
-        // Usa optional chaining e operadores OR para garantir que nada seja undefined/null
-        coinImage.src = coin?.image?.large || coin?.image?.thumb || 'placeholder.png'; // fallback para imagem
+        coinImage.src = coin?.image?.large || coin?.image?.thumb || 'placeholder.png';
         coinName.textContent = coin?.name || 'Moeda Desconhecida';
         coinSymbol.textContent = (coin?.symbol || 'N/A').toUpperCase();
 
-        // Dados de preço e variação (presentes em ambos os tipos de dados)
         coinPrice.textContent = formatCurrency(coin?.market_data?.current_price?.brl || coin?.current_price);
         
         const priceChange24h = coin?.market_data?.price_change_percentage_24h_in_currency?.brl || coin?.price_change_percentage_24h;
         coinPriceChange24h.innerHTML = `24h: ${formatPercentage(priceChange24h)}`;
 
-        // Dados completos (podem ser undefined se vierem do cache de lista)
         marketCap.textContent = formatCurrency(coin?.market_data?.market_cap?.brl);
         totalVolume.textContent = formatCurrency(coin?.market_data?.total_volume?.brl);
         circulatingSupply.textContent = coin?.market_data?.circulating_supply?.toLocaleString('pt-BR') || 'N/A';
@@ -263,13 +278,11 @@ document.addEventListener('DOMContentLoaded', () => {
         athChange.innerHTML = formatPercentage(coin?.market_data?.ath_change_percentage?.brl);
 
         descCoinName.textContent = coin?.name || 'Moeda';
-        // A descrição pode ser longa, usar pt ou en. Se não houver, "Nenhuma descrição".
         const descriptionContent = coin?.description?.[LOCALIZATION] || coin?.description?.en || 'Nenhuma descrição disponível.';
         descriptionText.innerHTML = descriptionContent;
 
-        // Links sociais (somente presentes em dados completos)
         socialLinksContainer.innerHTML = '';
-        if (!isFallbackData && coin.links) { // Só tenta renderizar links se não for dado de fallback (e se existirem)
+        if (!isFallbackData && coin.links) {
             if (coin.links.homepage && coin.links.homepage[0]) {
                 socialLinksContainer.innerHTML += `<a href="${coin.links.homepage[0]}" target="_blank"><i class="fas fa-globe"></i> Website</a>`;
             }
@@ -286,18 +299,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 socialLinksContainer.innerHTML += `<a href="${coin.links.repos_url.github[0]}" target="_blank"><i class="fab fa-github"></i> GitHub</a>`;
             }
         } else if (isFallbackData) {
-            // Se for dado de fallback, você pode adicionar uma mensagem ou manter vazio
             socialLinksContainer.innerHTML = '<p class="text-muted">Links sociais serão carregados com os dados completos.</p>';
         }
     }
 
     async function loadCoinDetails(coinId, chartDays = '1') {
-        toggleContent(true); // Mostra o loader principal
-        let coinDetailsToRender = null; // O objeto final de detalhes que será usado para renderizar
+        toggleContent(true);
+        let coinDetailsToRender = null;
         const detailsCacheKey = COIN_DETAILS_CACHE_PREFIX + coinId;
         let isFallbackRendering = false;
 
-        // 1. Tenta carregar os detalhes completos do cache de 24h
         const cachedDetails = localStorage.getItem(detailsCacheKey);
         if (cachedDetails) {
             try {
@@ -305,37 +316,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (Date.now() - timestamp < COIN_DETAILS_CACHE_EXPIRATION_TIME) {
                     coinDetailsToRender = data;
                     console.log(`Detalhes completos de '${coinId}' carregados do cache (24h).`);
-                    renderCoinDetails(coinDetailsToRender); // Renderiza rapidamente os dados do cache
+                    renderCoinDetails(coinDetailsToRender);
                 } else {
                     console.log(`Cache de detalhes para '${coinId}' expirado. Tentando buscar da API.`);
                 }
             } catch (e) {
                 console.error('Erro ao parsear cache de detalhes:', e);
-                localStorage.removeItem(detailsCacheKey); // Remove cache corrompido
+                localStorage.removeItem(detailsCacheKey);
             }
         }
 
-        // 2. Tenta buscar os dados mais atualizados da API para os detalhes completos
         try {
             console.log(`Buscando detalhes mais atualizados de '${coinId}' da API CoinGecko.`);
             const coinDetailsResponse = await fetch(`${COINGECKO_API_BASE_URL}/coins/${coinId}?localization=true&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`);
 
             if (!coinDetailsResponse.ok) {
                 console.warn(`API de detalhes para '${coinId}' falhou com status: ${coinDetailsResponse.status}.`);
-                // Não lança erro fatal aqui. Continua para o fallback se necessário.
             } else {
                 const coinApiData = await coinDetailsResponse.json();
                 console.log('Dados completos atualizados da moeda:', coinApiData);
                 localStorage.setItem(detailsCacheKey, JSON.stringify({ data: coinApiData, timestamp: Date.now() }));
-                coinDetailsToRender = coinApiData; // Define para os dados mais frescos
-                renderCoinDetails(coinDetailsToRender); // Atualiza a interface com os dados mais recentes
+                coinDetailsToRender = coinApiData;
+                renderCoinDetails(coinDetailsToRender);
             }
         } catch (apiError) {
             console.error('Erro de rede ou outro erro ao chamar API de detalhes:', apiError);
-            // Continua para o fallback se a API falhar
         }
 
-        // 3. Fallback: Se ainda não tivermos dados completos, tente usar os dados da lista principal
         if (!coinDetailsToRender) {
             console.log(`Não foi possível obter dados completos para '${coinId}'. Tentando usar dados de fallback da lista principal.`);
             const cachedCoinListRaw = localStorage.getItem('cachedCoinList');
@@ -347,11 +354,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         coinDetailsToRender = fallbackCoin;
                         isFallbackRendering = true;
                         console.log(`Detalhes de '${coinId}' carregados do cache da lista principal.`);
-                        renderCoinDetails(coinDetailsToRender, isFallbackRendering); // Renderiza com os dados básicos
+                        renderCoinDetails(coinDetailsToRender, isFallbackRendering);
                     }
                 } catch (e) {
                     console.error('Erro ao parsear cache da lista de moedas:', e);
-                    localStorage.removeItem('cachedCoinList'); // Remove cache corrompido
+                    localStorage.removeItem('cachedCoinList');
                 }
             }
 
@@ -359,16 +366,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error(`ID da moeda '${coinId}' não encontrado em nenhum cache ou API.`);
                 coinDetailsContent.innerHTML = `<p style="text-align: center; color: var(--danger-color);">Não foi possível carregar detalhes para esta moeda. Verifique o ID.</p>`;
                 toggleContent(false);
-                return; // Sai se não houver dados de forma alguma
+                return;
             }
         }
         
-        // Renderiza o gráfico independentemente do fallback dos detalhes
         console.log(`Buscando dados do gráfico OHLC para '${coinId}'.`);
+        // We now explicitly call renderPriceChart after fetchChartData resolves.
+        // fetchChartData itself will call toggleChartLoader(true) and (false)
+        // as well as set up the retry if needed.
         const ohlcData = await fetchChartData(coinId, chartDays);
         renderPriceChart(ohlcData);
 
-        toggleContent(false); // Esconde o loader principal quando tudo estiver pronto
+        toggleContent(false);
     }
 
     chartControls.addEventListener('click', async (event) => {
@@ -386,7 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     clearTimeout(chartRetryTimeout);
                     chartRetryTimeout = null;
                 }
-                toggleChartLoader(true);
+                toggleChartLoader(true); // Show loader and message immediately on button click
                 const ohlcData = await fetchChartData(coinId, days);
                 renderPriceChart(ohlcData);
             }
