@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
         coinsData: [],
         priceChart: null,
         isUpdating: false,
-        currentTab: 'trending'
+        currentTab: 'add-coin' // <--- AJUSTE AQUI: Abre na aba de adicionar moeda por padrão
     };
 
     // --- VARIÁVEIS PARA O GERENCIAMENTO DA FILA DE REQUISIÇÕES ---
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             await loadCoinsFromJSON();
             setupEventListeners();
-            showTab(STATE.currentTab);
+            showTab(STATE.currentTab); // Exibe a aba inicial definida
         } catch (error) {
             console.error('Erro na inicialização:', error);
             showToast('Erro ao carregar a aplicação. Tente recarregar a página.', 'error');
@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function processQueue() {
         if (isProcessingQueue || requestQueue.length === 0) {
-            isProcessingQueue = false;
+            isProcessingQueue = false; // Reset para garantir que não fique travado
             return;
         }
 
@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } finally {
             isProcessingQueue = false;
             if (requestQueue.length > 0) {
-                setTimeout(processQueue, 10);
+                setTimeout(processQueue, 10); // Processa o próximo item quase que imediatamente
             }
         }
     }
@@ -234,8 +234,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 );
             }
 
-            await Promise.allSettled(pendingRequests);
+            await Promise.allSettled(pendingRequests); // Espera todas as promessas, mesmo que algumas falhem
 
+            // Reordena e atualiza as tabelas após todas as atualizações
             STATE.coinsData.sort((a, b) => b.volume24h - a.volume24h);
             updateTrendingTable();
             updateNewListingsTable();
@@ -321,7 +322,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     finalData.volume24h = parseFloat(attributes.volume_usd?.h24) || 0;
                     finalData.liquidity = parseFloat(attributes.reserve_in_usd || attributes.total_reserve_in_usd) || 0;
                 } else {
-                     console.warn(`Nenhuma pool encontrada ou dados insuficientes para preço/volume do token ${coin.symbol}.`);
+                    console.warn(`Nenhuma pool encontrada ou dados insuficientes para preço/volume do token ${coin.symbol}.`);
                 }
 
                 finalData.lastUpdated = new Date().toISOString();
@@ -626,7 +627,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <td>
                 <div class="coin-cell" onclick="showCoinDetail(${coin.id}, event)">
                     <img src="${safeImageSource(coin.logo)}" alt="${coin.name}" class="coin-logo"
-                         onerror="this.src='${CONFIG.defaultLogo}'">
+                            onerror="this.src='${CONFIG.defaultLogo}'">
                     <div>
                         <span class="coin-name">${coin.name}</span>
                         <span class="coin-symbol">${coin.symbol}</span>
@@ -655,7 +656,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <td>
                 <div class="coin-cell" onclick="showCoinDetail(${coin.id}, event)">
                     <img src="${safeImageSource(coin.logo)}" alt="${coin.name}" class="coin-logo"
-                         onerror="this.src='${CONFIG.defaultLogo}'">
+                            onerror="this.src='${CONFIG.defaultLogo}'">
                     <div>
                         <span class="coin-name">${coin.name}</span>
                         <span class="coin-symbol">${coin.symbol}</span>
@@ -691,7 +692,7 @@ document.addEventListener('DOMContentLoaded', function() {
         DOM.coinDetailContent.innerHTML = `
             <div class="coin-detail-header">
                 <img src="${safeImageSource(coin.logo)}" alt="${coin.name}" class="coin-detail-logo"
-                     onerror="this.src='${CONFIG.defaultLogo}'">
+                            onerror="this.src='${CONFIG.defaultLogo}'">
                 <div>
                     <h3 class="coin-detail-name">${coin.name} <span class="coin-detail-symbol">${coin.symbol}</span></h3>
                     <div class="coin-detail-price">${priceFormatted}</div>
@@ -755,228 +756,227 @@ document.addEventListener('DOMContentLoaded', function() {
                 <button class="btn-submit" onclick="refreshSingleCoin(${coin.id})">
                     <i class="fas fa-sync-alt"></i> Atualizar Dados
                 </button>
-                <a href="${getGeckoTerminalLink(coin)}"
-                   target="_blank"
-                   class="btn-submit"
-                   style="background-color: var(--secondary-color);">
-                    <i class="fas fa-external-link-alt"></i> Ver no GeckoTerminal
-                </a>
+                <button class="btn-delete" onclick="deleteCoin(${coin.id})">
+                    <i class="fas fa-trash-alt"></i> Excluir Moeda
+                </button>
             </div>
         `;
 
-        createPriceChart(coin, historicalData);
-    }
-
-    function renderTable(tbody, coins, rowTemplate) {
-        tbody.innerHTML = '';
-
-        if (coins.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="7" class="no-results">
-                        Nenhuma moeda encontrada com os critérios atuais.
-                    </td>
-                </tr>
-            `;
-            return;
+        if (historicalData) {
+            renderPriceChart(historicalData);
+        } else {
+            document.getElementById('priceChart').style.display = 'none';
+            DOM.coinDetailContent.querySelector('.chart-container').innerHTML = '<p class="text-center">Dados históricos não disponíveis.</p>';
         }
-
-        coins.forEach((coin, index) => {
-            const tr = document.createElement('tr');
-            tr.dataset.id = coin.id;
-            tr.innerHTML = rowTemplate(coin, index);
-            tbody.appendChild(tr);
-        });
     }
 
     function renderSocialLinks(coin) {
-        const socialLinks = [];
+        const socials = coin.socials || {};
+        const links = [
+            { key: 'twitter', icon: 'fab fa-twitter', label: 'Twitter' },
+            { key: 'telegram', icon: 'fab fa-telegram-plane', label: 'Telegram' },
+            { key: 'discord', icon: 'fab fa-discord', label: 'Discord' },
+            { key: 'reddit', icon: 'fab fa-reddit-alien', label: 'Reddit' },
+            { key: 'facebook', icon: 'fab fa-facebook-f', label: 'Facebook' },
+            { key: 'bitcointalk', icon: 'fab fa-bitcoin', label: 'Bitcointalk' },
+            { key: 'github', icon: 'fab fa-github', label: 'GitHub' },
+            { key: 'medium', icon: 'fab fa-medium', label: 'Medium' },
+            { key: 'youtube', icon: 'fab fa-youtube', label: 'YouTube' }
+        ];
 
-        if (coin.socials?.twitter && isValidUrl(coin.socials.twitter)) {
-            socialLinks.push(`
-                <a href="${ensureHttp(coin.socials.twitter)}" target="_blank" class="social-link" rel="noopener noreferrer">
-                    <i class="fab fa-twitter"></i> Twitter
-                </a>
-            `);
-        }
-        if (coin.socials?.telegram && isValidUrl(coin.socials.telegram)) {
-            socialLinks.push(`
-                <a href="${ensureHttp(coin.socials.telegram)}" target="_blank" class="social-link" rel="noopener noreferrer">
-                    <i class="fab fa-telegram-plane"></i> Telegram
-                </a>
-            `);
-        }
-        if (coin.socials?.discord && isValidUrl(coin.socials.discord)) { // Discord URLs podem não ser sempre HTTP, mas é bom validar se forem
-            socialLinks.push(`
-                <a href="${ensureHttp(coin.socials.discord)}" target="_blank" class="social-link" rel="noopener noreferrer">
-                    <i class="fab fa-discord"></i> Discord
-                </a>
-            `);
-        }
-        if (coin.socials?.reddit && isValidUrl(coin.socials.reddit)) {
-            socialLinks.push(`
-                <a href="${ensureHttp(coin.socials.reddit)}" target="_blank" class="social-link" rel="noopener noreferrer">
-                    <i class="fab fa-reddit"></i> Reddit
-                </a>
-            `);
-        }
-        if (coin.socials?.facebook && isValidUrl(coin.socials.facebook)) {
-            socialLinks.push(`
-                <a href="${ensureHttp(coin.socials.facebook)}" target="_blank" class="social-link" rel="noopener noreferrer">
-                    <i class="fab fa-facebook"></i> Facebook
-                </a>
-            `);
-        }
-        if (coin.socials?.bitcointalk && isValidUrl(coin.socials.bitcointalk)) {
-            socialLinks.push(`
-                <a href="${ensureHttp(coin.socials.bitcointalk)}" target="_blank" class="social-link" rel="noopener noreferrer">
-                    <i class="fab fa-bitcoin"></i> Bitcointalk
-                </a>
-            `);
-        }
-        if (coin.socials?.github && isValidUrl(coin.socials.github)) {
-            socialLinks.push(`
-                <a href="${ensureHttp(coin.socials.github)}" target="_blank" class="social-link" rel="noopener noreferrer">
-                    <i class="fab fa-github"></i> GitHub
-                </a>
-            `);
-        }
-        if (coin.socials?.medium && isValidUrl(coin.socials.medium)) {
-            socialLinks.push(`
-                <a href="${ensureHttp(coin.socials.medium)}" target="_blank" class="social-link" rel="noopener noreferrer">
-                    <i class="fab fa-medium"></i> Medium
-                </a>
-            `);
-        }
-         if (coin.socials?.youtube && isValidUrl(coin.socials.youtube)) {
-            socialLinks.push(`
-                <a href="${ensureHttp(coin.socials.youtube)}" target="_blank" class="social-link" rel="noopener noreferrer">
-                    <i class="fab fa-youtube"></i> YouTube
-                </a>
-            `);
-        }
+        let socialHtml = `<h4>Redes Sociais</h4><div class="social-links">`;
+        let hasSocials = false;
 
-        if (socialLinks.length === 0) {
-            return '';
-        }
+        links.forEach(link => {
+            if (socials[link.key]) {
+                socialHtml += `
+                    <a href="${ensureHttp(socials[link.key])}" target="_blank" rel="noopener noreferrer" class="social-link">
+                        <i class="${link.icon}"></i> ${link.label}
+                    </a>
+                `;
+                hasSocials = true;
+            }
+        });
 
-        return `
-            <div class="social-links-container">
-                <h4>Redes Sociais</h4>
-                <div class="social-links-list">
-                    ${socialLinks.join('')}
-                </div>
-            </div>
-        `;
+        socialHtml += `</div>`;
+        return hasSocials ? socialHtml : '<p>Nenhuma rede social disponível.</p>';
     }
 
-    function createPriceChart(coin, historicalData) {
-        const ctx = document.getElementById('priceChart')?.getContext('2d');
-        if (!ctx) {
-            console.warn('Canvas para o gráfico não encontrado.');
-            return;
-        }
-
-        const chartData = historicalData && historicalData.length > 0 ? historicalData : generateSimulatedData(coin);
+    function renderPriceChart(data) {
+        const ctx = document.getElementById('priceChart').getContext('2d');
 
         if (STATE.priceChart) {
             STATE.priceChart.destroy();
         }
 
+        const labels = data.map(item => item.date.toLocaleDateString('pt-BR')).reverse();
+        const prices = data.map(item => item.price).reverse();
+
         STATE.priceChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: chartData.map(item => item.date.toLocaleDateString()),
+                labels: labels,
                 datasets: [{
-                    label: `Preço ${coin.symbol} (USD)`,
-                    data: chartData.map(item => item.price),
-                    borderColor: 'rgba(39, 121, 255, 1)',
-                    backgroundColor: 'rgba(39, 121, 255, 0.1)',
+                    label: 'Preço (USD)',
+                    data: prices,
+                    borderColor: '#007bff',
+                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
                     borderWidth: 2,
                     fill: true,
-                    tension: 0.4
+                    tension: 0.4,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#007bff'
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top',
-                        labels: {
-                            color: 'var(--text-color)'
-                        }
-                    },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false,
-                        callbacks: {
-                            label: function(context) {
-                                return ` ${context.dataset.label}: ${formatCurrency(context.raw)}`;
-                            }
-                        }
-                    }
-                },
                 scales: {
                     x: {
+                        grid: {
+                            display: false
+                        },
                         ticks: {
-                            color: 'var(--text-color-secondary)'
+                            autoSkip: true,
+                            maxRotation: 0,
+                            minRotation: 0
                         }
                     },
                     y: {
                         beginAtZero: false,
+                        grid: {
+                            color: 'rgba(200, 200, 200, 0.2)'
+                        },
                         ticks: {
                             callback: function(value) {
                                 return formatCurrency(value);
-                            },
-                            color: 'var(--text-color-secondary)'
-                        },
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Preço: ${formatCurrency(context.raw)}`;
+                            }
                         }
                     }
                 }
             }
         });
+        document.getElementById('priceChart').style.display = 'block';
     }
 
-    function generateSimulatedData(coin) {
-        const data = [];
-        let currentPrice = coin.price > 0 ? coin.price : 0.01;
 
-        for (let i = 6; i >= 0; i--) {
-            const date = new Date();
-            date.setDate(date.getDate() - i);
-
-            const change = (Math.random() * 0.1 - 0.05) * (1 + Math.abs(coin.priceChange24h / 100));
-            currentPrice = currentPrice * (1 + change);
-            if (currentPrice <= 0) currentPrice = 0.000001;
-
-            data.push({
-                date,
-                price: currentPrice
-            });
+    window.deleteCoin = function(coinId) {
+        if (!confirm('Tem certeza que deseja excluir esta moeda? Esta ação é irreversível.')) {
+            return;
         }
-        return data;
-    }
 
-    function getCachedCoinData(coin) {
-        const cacheKey = `coin-${coin.network}-${coin.contract}`;
-        const cached = localStorage.getItem(cacheKey);
-        if (!cached) return null;
+        const initialLength = STATE.coinsData.length;
+        STATE.coinsData = STATE.coinsData.filter(coin => coin.id !== coinId);
 
-        const data = JSON.parse(cached);
-        if (new Date() - new Date(data.lastUpdated) > CONFIG.cacheExpiration) {
-            localStorage.removeItem(cacheKey);
-            return null;
+        if (STATE.coinsData.length < initialLength) {
+            showToast('Moeda excluída com sucesso!', 'success');
+            updateTrendingTable();
+            updateNewListingsTable();
+            closeModal();
+            // Opcional: Persistir os dados atualizados em coins.json se você tiver um backend
+            // saveCoinsToJSON(STATE.coinsData);
+        } else {
+            showToast('Erro ao excluir moeda.', 'error');
         }
-        return data;
+    };
+
+
+    function showTab(tabId) {
+        DOM.tabContents.forEach(content => {
+            content.classList.remove('active');
+        });
+        DOM.tabLinks.forEach(link => {
+            link.classList.remove('active');
+        });
+
+        document.getElementById(tabId).classList.add('active');
+        document.querySelector(`.tab-link[data-tab="${tabId}"]`).classList.add('active');
+
+        // Atualizar as tabelas quando a aba for mostrada
+        if (tabId === 'trending') {
+            updateTrendingTable();
+        } else if (tabId === 'new-listings') {
+            updateNewListingsTable();
+        }
     }
 
-    function cacheCoinData(coin, data) {
-        const cacheKey = `coin-${coin.network}-${coin.contract}`;
-        localStorage.setItem(cacheKey, JSON.stringify(data));
+    function closeModal() {
+        DOM.coinDetailModal.style.display = 'none';
+        if (STATE.priceChart) {
+            STATE.priceChart.destroy();
+            STATE.priceChart = null;
+        }
+    }
+
+    function showLoader(show) {
+        DOM.globalLoader.style.display = show ? 'flex' : 'none';
+    }
+
+    function showModalLoading(show) {
+        const modalLoader = DOM.coinDetailModal.querySelector('.modal-loader');
+        if (modalLoader) {
+            modalLoader.style.display = show ? 'flex' : 'none';
+            DOM.coinDetailContent.style.display = show ? 'none' : 'block';
+        }
+    }
+
+    // --- UTILS ---
+    function formatCurrency(value) {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 8
+        }).format(value);
+    }
+
+    function formatPercentage(value) {
+        return `${value.toFixed(2)}%`;
+    }
+
+    function getPriceChangeClass(value) {
+        if (value > 0) return 'positive';
+        if (value < 0) return 'negative';
+        return '';
+    }
+
+    function safeImageSource(url) {
+        // Verifica se a URL é válida e não está vazia. Caso contrário, retorna o logo padrão.
+        if (url && isValidUrl(url)) {
+            return url;
+        }
+        return CONFIG.defaultLogo;
+    }
+
+    function ensureHttp(url) {
+        if (!/^https?:\/\//i.test(url)) {
+            return `https://${url}`;
+        }
+        return url;
+    }
+
+    function renderTable(tableBodyElement, data, rowTemplate) {
+        tableBodyElement.innerHTML = '';
+        if (data.length === 0) {
+            tableBodyElement.innerHTML = '<tr><td colspan="7" class="text-center">Nenhum dado disponível.</td></tr>';
+            return;
+        }
+        data.forEach((coin, index) => {
+            const row = tableBodyElement.insertRow();
+            row.innerHTML = rowTemplate(coin, index);
+        });
     }
 
     function getFormData() {
@@ -1002,197 +1002,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    function showTab(tabId) {
-        DOM.tabContents.forEach(content => content.classList.remove('active'));
-        DOM.tabLinks.forEach(link => link.classList.remove('active'));
-
-        document.getElementById(tabId).classList.add('active');
-        document.querySelector(`.tab-link[data-tab="${tabId}"]`).classList.add('active');
-
-        if (tabId === 'trending') {
-            updateTrendingTable();
-        } else if (tabId === 'new-listings') {
-            updateNewListingsTable();
-        }
-    }
-
-    function showModalLoading(show) {
-        if (show) {
-            DOM.coinDetailContent.innerHTML = `
-                <div style="display: flex; justify-content: center; align-items: center; height: 300px; color: var(--text-color);">
-                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i>
-                </div>
-            `;
-            DOM.coinDetailModal.style.display = 'block';
-        }
-    }
-
-    function showLoader(show) {
-        if (DOM.globalLoader) {
-            DOM.globalLoader.style.display = show ? 'flex' : 'none';
-        }
-    }
-
-    function closeModal() {
-        DOM.coinDetailModal.style.display = 'none';
-        if (STATE.priceChart) {
-            STATE.priceChart.destroy();
-            STATE.priceChart = null;
-        }
-    }
-
-    function showToast(message, type = 'info') {
-        let toastContainer = document.getElementById('toast-container');
-        if (!toastContainer) {
-            toastContainer = document.createElement('div');
-            toastContainer.id = 'toast-container';
-            document.body.appendChild(toastContainer);
-            toastContainer.style.position = 'fixed';
-            toastContainer.style.bottom = '20px';
-            toastContainer.style.left = '50%';
-            toastContainer.style.transform = 'translateX(-50%)';
-            toastContainer.style.zIndex = '1000';
-            toastContainer.style.display = 'flex';
-            toastContainer.style.flexDirection = 'column-reverse';
-            toastContainer.style.alignItems = 'center';
-        }
-
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.innerHTML = `
-            <div class="toast-message">${message}</div>
-            <button class="toast-close-btn" onclick="this.parentElement.remove()">
-                ×
-            </button>
-        `;
-
-        toastContainer.appendChild(toast);
-
-        setTimeout(() => {
-            if (toast.parentElement) {
-                toast.remove();
-            }
-        }, 5000);
-    }
-
-    function formatCurrency(value) {
-        if (typeof value !== 'number' || isNaN(value)) return 'N/A';
-        let minimumFractionDigits = 2;
-        let maximumFractionDigits = 2;
-        if (value < 0.01 && value !== 0) {
-            minimumFractionDigits = 2;
-            maximumFractionDigits = Math.max(2, String(value).split('.')[1]?.length || 2);
-            if (value < 0.000001) maximumFractionDigits = 8;
-            if (value < 0.000000001) maximumFractionDigits = 12;
-        }
-        return `$${value.toLocaleString('en-US', {
-            minimumFractionDigits: minimumFractionDigits,
-            maximumFractionDigits: maximumFractionDigits
-        })}`;
-    }
-
-    function formatPercentage(value) {
-        if (typeof value !== 'number' || isNaN(value)) return 'N/A';
-        const sign = value >= 0 ? '+' : '';
-        return `${sign}${value.toFixed(2)}%`;
-    }
-
-    function getPriceChangeClass(value) {
-        if (typeof value !== 'number' || isNaN(value)) return '';
-        return value >= 0 ? 'positive' : 'negative';
-    }
-
-    function safeImageSource(url) {
-        if (url && isValidUrl(url)) {
-            return url;
-        }
-        return CONFIG.defaultLogo;
-    }
-
-    function ensureHttp(url) {
-        if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
-            return `https://${url}`;
-        }
-        return url;
-    }
-
-    function getGeckoTerminalLink(coin) {
-        const networkInfo = NETWORK_MAPPING[coin.network];
-        if (networkInfo && coin.contract) {
-            // Link para a página do token no GeckoTerminal
-            return `https://www.geckoterminal.com/${networkInfo.apiPath}/tokens/${coin.contract}`;
-        }
-        return '#';
-    }
-
-    function filterCoins() {
-        const searchTerm = DOM.globalSearch.value.toLowerCase();
-        const filteredCoins = STATE.coinsData.filter(coin =>
-            coin.name.toLowerCase().includes(searchTerm) ||
-            coin.symbol.toLowerCase().includes(searchTerm) ||
-            coin.contract.toLowerCase().includes(searchTerm)
-        );
-
-        updateTrendingTableWithFilteredData(filteredCoins);
-        updateNewListingsTableWithFilteredData(filteredCoins);
-    }
-
-    function updateTrendingTableWithFilteredData(filteredData) {
-        const trendingCoins = [...filteredData]
-            .filter(coin => coin.volume24h > 0)
-            .sort((a, b) => b.volume24h - a.volume24h)
-            .slice(0, 50);
-        renderTable(DOM.trendingTableBody, trendingCoins, (coin, index) => `
-            <td>${index + 1}</td>
-            <td>
-                <div class="coin-cell" onclick="showCoinDetail(${coin.id}, event)">
-                    <img src="${safeImageSource(coin.logo)}" alt="${coin.name}" class="coin-logo"
-                         onerror="this.src='${CONFIG.defaultLogo}'">
-                    <div>
-                        <span class="coin-name">${coin.name}</span>
-                        <span class="coin-symbol">${coin.symbol}</span>
-                    </div>
-                </div>
-            </td>
-            <td>${formatCurrency(coin.price)}</td>
-            <td><span class="price-change ${getPriceChangeClass(coin.priceChange24h)}">${formatPercentage(coin.priceChange24h)}</span></td>
-            <td>${formatCurrency(coin.volume24h)}</td>
-            <td>${formatCurrency(coin.liquidity)}</td>
-            <td>
-                <button class="btn-action" onclick="showCoinDetail(${coin.id}, event)">
-                    <i class="fas fa-eye"></i> Detalhes
-                </button>
-            </td>
-        `);
-    }
-
-    function updateNewListingsTableWithFilteredData(filteredData) {
-        const newCoins = [...filteredData]
-            .sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded))
-            .slice(0, 20);
-        renderTable(DOM.newListingsTableBody, newCoins, (coin, index) => `
-            <td>${index + 1}</td>
-            <td>
-                <div class="coin-cell" onclick="showCoinDetail(${coin.id}, event)">
-                    <img src="${safeImageSource(coin.logo)}" alt="${coin.name}" class="coin-logo"
-                         onerror="this.src='${CONFIG.defaultLogo}'">
-                    <div>
-                        <span class="coin-name">${coin.name}</span>
-                        <span class="coin-symbol">${coin.symbol}</span>
-                    </div>
-                </div>
-            </td>
-            <td>${formatCurrency(coin.price)}</td>
-            <td><span class="price-change ${getPriceChangeClass(coin.priceChange24h)}">${formatPercentage(coin.priceChange24h)}</span></td>
-            <td>${new Date(coin.dateAdded).toLocaleDateString()}</td>
-            <td>
-                <button class="btn-action" onclick="showCoinDetail(${coin.id}, event)">
-                    <i class="fas fa-eye"></i> Detalhes
-                </button>
-            </td>
-        `);
-    }
-
+    // Função de debounce para otimizar a busca
     function debounce(func, delay) {
         let timeout;
         return function(...args) {
@@ -1202,39 +1012,101 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
+    function filterCoins() {
+        const searchTerm = DOM.globalSearch.value.toLowerCase();
+        const allRows = DOM.trendingTableBody.querySelectorAll('tr'); // Supondo que a busca se aplica à aba trending
+        allRows.forEach(row => {
+            const coinName = row.querySelector('.coin-name')?.textContent.toLowerCase() || '';
+            const coinSymbol = row.querySelector('.coin-symbol')?.textContent.toLowerCase() || '';
+            if (coinName.includes(searchTerm) || coinSymbol.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.classList.add('toast', type);
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 100);
+
+        setTimeout(() => {
+            toast.classList.remove('show');
+            toast.addEventListener('transitionend', () => toast.remove());
+        }, 3000);
+    }
+
+    // Cache simples em memória
+    const coinCache = {};
+
+    function getCachedCoinData(coin) {
+        const key = `${coin.network}-${coin.contract}`;
+        const cached = coinCache[key];
+        if (cached && (Date.now() - cached.timestamp < CONFIG.cacheExpiration)) {
+            return cached.data;
+        }
+        return null;
+    }
+
+    function cacheCoinData(coin, data) {
+        const key = `${coin.network}-${coin.contract}`;
+        coinCache[key] = {
+            data: data,
+            timestamp: Date.now()
+        };
+    }
+
+    // Função para carregar dados de exemplo (se o JSON falhar)
     function loadSampleData() {
         STATE.coinsData = [
             {
-                id: 998, name: "Wrapped BTC", symbol: "WBTC", contract: "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599", network: "eth",
-                website: "https://wbtc.network", description: "Wrapped Bitcoin (WBTC) is an ERC-20 token representing Bitcoin on the Ethereum blockchain.", logo: "https://cryptologos.cc/logos/wrapped-bitcoin-wbtc-logo.png?v=025",
-                socials: { twitter: "https://twitter.com/WrappedBTC", telegram: "https://t.me/wbtc", discord: "", reddit: "https://reddit.com/r/wbtc", facebook: "", bitcointalk: "", github: "https://github.com/wbtc", medium: "", youtube: "" },
+                id: 1,
+                name: "Bitcoin",
+                symbol: "BTC",
+                contract: "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599", // Exemplo, não um contrato BTC real
+                network: "eth", // Exemplo
                 dateAdded: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-                price: 107787.65, priceChange24h: -1.26, priceChange7d: -5.0, volume24h: 50000000, liquidity: 800000000,
-                holders: 15000, // Exemplo de holders
-                lastUpdated: new Date().toISOString()
+                price: 70000,
+                priceChange24h: 2.5,
+                priceChange7d: 10.1,
+                volume24h: 5000000000,
+                liquidity: 10000000000,
+                holders: 5000000,
+                lastUpdated: new Date().toISOString(),
+                website: "https://bitcoin.org/",
+                description: "Bitcoin é uma criptomoeda descentralizada.",
+                logo: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
+                socials: { twitter: "https://twitter.com/bitcoin", telegram: "" }
             },
             {
-                id: 999, name: "Binance Coin", symbol: "BNB", contract: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c", network: "bsc",
-                website: "https://www.bnbchain.org/", description: "Binance Coin (BNB) is the cryptocurrency issued by the Binance exchange.", logo: "https://cryptologos.cc/logos/bnb-bnb-logo.png?v=025",
-                socials: { twitter: "https://twitter.com/binance", telegram: "https://t.me/BinanceExchange", discord: "https://discord.gg/binance", reddit: "https://reddit.com/r/binance", facebook: "https://facebook.com/binanceexchange", bitcointalk: "", github: "https://github.com/binance-chain", medium: "https://medium.com/binance", youtube: "https://www.youtube.com/binance" },
-                dateAdded: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-                price: 600.50, priceChange24h: 2.8, priceChange7d: 7.5, volume24h: 150000000, liquidity: 1200000000,
-                holders: 2500000, // Exemplo de holders
-                lastUpdated: new Date().toISOString()
-            },
-            {
-                id: 1000, name: "Solana", symbol: "SOL", contract: "So11111111111111111111111111111111111111112", network: "solana",
-                website: "https://solana.com", description: "Solana is a decentralized computing platform that uses SOL to pay for transactions.", logo: "https://cryptologos.cc/logos/solana-sol-logo.png?v=025",
-                socials: { twitter: "https://twitter.com/solana", telegram: "https://t.me/solana", discord: "https://discord.com/invite/solana", reddit: "https://reddit.com/r/solana", facebook: "", bitcointalk: "", github: "https://github.com/solana-labs", medium: "https://medium.com/solana-labs", youtube: "https://www.youtube.com/solana" },
+                id: 2,
+                name: "Ethereum",
+                symbol: "ETH",
+                contract: "0x7a250d5630b4cf539739df2c5dacb4c659f2488d", // Exemplo, contrato de um pool ETH
+                network: "eth",
                 dateAdded: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-                price: 150.75, priceChange24h: 1.5, priceChange7d: 8.9, volume24h: 80000000, liquidity: 2000000000,
-                holders: 1800000, // Exemplo de holders
-                lastUpdated: new Date().toISOString()
+                price: 3500,
+                priceChange24h: -1.2,
+                priceChange7d: 5.5,
+                volume24h: 2000000000,
+                liquidity: 4000000000,
+                holders: 10000000,
+                lastUpdated: new Date().toISOString(),
+                website: "https://ethereum.org/",
+                description: "Ethereum é uma plataforma global de código aberto para aplicações descentralizadas.",
+                logo: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1696501628",
+                socials: { twitter: "https://twitter.com/ethereum", telegram: "" }
             }
         ];
         updateTrendingTable();
         updateNewListingsTable();
-        showToast('Dados de exemplo carregados, pois o arquivo coins.json não foi encontrado ou é inválido.', 'warning');
+        showToast('Dados de exemplo carregados devido a erro no arquivo JSON.', 'warning');
     }
 
 }); // Fim do DOMContentLoaded
