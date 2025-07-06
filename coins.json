@@ -1,20 +1,6 @@
 {
   "coins": [
-    {
-      "id": 1,
-      "name": "Bitcoin",
-      "symbol": "BTC",
-      "contract": "0x0555E30da8f98308EdB960aa94C0Db47230d2B9c",
-      "network": "bsc",
-      "website": "https://www.bitcoin.org/",
-      "description": "Bitcoin é o primeiro dinheiro de internet bem sucedido com base na tecnologia par-a-par em que nenhum banco ou autoridade central está envolvido na transação e produção da moeda Bitcoin. Foi criado por um indivíduo ou grupo anônimo sob o pseudônimo de Satoshi Nakamoto.",
-      "logo": "https://assets.coingecko.com/coins/images/1/standard/bitcoin.png?1696501400",
-      "socials": {
-        "twitter": "https://twitter.com/bitcoin",
-        "bitcointalk": "https://bitcointalk.org/",
-        "reddit": "https://reddit.com/r/Bitcoin"
-      }
-    },
+ 
     {
       "id": 2,
       "name": "Crap Coin Fun",
