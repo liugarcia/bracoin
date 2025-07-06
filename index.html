@@ -40,10 +40,7 @@
             
             <nav class="main-nav desktop-nav">
                 <ul id="mainTabs">
-                    <li><a href="#" class="tab-link active" data-tab="add-coin">Adicionar Moeda</a></li>
-                    <li><a href="#" class="tab-link" data-tab="trending">Trending</a></li>
-                    <li><a href="#" class="tab-link" data-tab="new-listings">Novos Lançamentos</a></li>
-                    <li><a href="#" class="tab-link" data-tab="all-crypto">All Crypto</a></li>
+                    <li><a href="#" class="tab-link active" data-tab="all-crypto">All Crypto</a></li>
                     <li><a href="#" class="tab-link" data-tab="nfts">NFTs</a></li>
                     <li><a href="#" class="tab-link" data-tab="categories">Categories</a></li>
                     <li><a href="#" class="tab-link" data-tab="defi">DeFi</a></li>
@@ -91,97 +88,33 @@
                 <button class="filter-button"><i class="fas fa-filter"></i> Filters</button>
                 <button class="sort-button"><i class="fas fa-sort"></i> Sort</button>
             </div>
+            <button id="refreshTrending" class="btn-refresh" style="margin-left: 10px;"><i class="fas fa-sync-alt"></i> Atualizar Todos os Dados</button>
         </section>
 
-        <div id="add-coin" class="tab-content active"> 
-            <h2>Adicionar Nova Moeda</h2>
-            <form id="coinForm" class="coin-form card">
-                <div class="form-group">
-                    <label for="coinName">Nome da Moeda:</label>
-                    <input type="text" id="coinName" required>
-                </div>
-                <div class="form-group">
-                    <label for="coinSymbol">Símbolo (Ex: BTC):</label>
-                    <input type="text" id="coinSymbol" required maxlength="10">
-                </div>
-                <div class="form-group">
-                    <label for="coinContract">Endereço do Contrato:</label>
-                    <input type="text" id="coinContract" required>
-                </div>
-                <div class="form-group">
-                    <label for="coinNetwork">Rede Blockchain:</label>
-                    <select id="coinNetwork" required>
-                        <option value="">Selecione a Rede</option>
-                        <option value="eth">Ethereum</option>
-                        <option value="bsc">Binance Smart Chain</option>
-                        <option value="polygon">Polygon</option>
-                        <option value="avax">Avalanche</option>
-                        <option value="arbitrum">Arbitrum</option>
-                        <option value="optimism">Optimism</option>
-                        <option value="solana">Solana</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="coinWebsite">Website (Opcional):</label>
-                    <input type="url" id="coinWebsite" placeholder="https://exemplo.com">
-                </div>
-                <div class="form-group">
-                    <label for="coinDescription">Descrição (Opcional):</label>
-                    <textarea id="coinDescription" rows="3" placeholder="Uma breve descrição da moeda..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="coinLogo">URL do Logo (Opcional):</label>
-                    <input type="url" id="coinLogo" placeholder="https://exemplo.com/logo.png">
-                </div>
-
-                <h4>Redes Sociais (Opcional)</h4>
-                <div class="form-group">
-                    <label for="coinTwitter">Twitter URL:</label>
-                    <input type="url" id="coinTwitter" placeholder="https://twitter.com/seutoken">
-                </div>
-                <div class="form-group">
-                    <label for="coinTelegram">Telegram URL:</label>
-                    <input type="url" id="coinTelegram" placeholder="https://t.me/seutoken">
-                </div>
-                <div class="form-group">
-                    <label for="coinDiscord">Discord URL:</label>
-                    <input type="url" id="coinDiscord" placeholder="https://discord.com/invite/seutoken">
-                </div>
-                <div class="form-group">
-                    <label for="coinReddit">Reddit URL:</label>
-                    <input type="url" id="coinReddit" placeholder="https://reddit.com/r/seutoken">
-                </div>
-                <div class="form-group">
-                    <label for="coinFacebook">Facebook URL:</label>
-                    <input type="url" id="coinFacebook" placeholder="https://facebook.com/seutoken">
-                </div>
-                <div class="form-group">
-                    <label for="coinBitcointalk">Bitcointalk URL:</label>
-                    <input type="url" id="coinBitcointalk" placeholder="https://bitcointalk.org/index.php?topic=...">
-                </div>
-                <div class="form-group">
-                    <label for="coinGithub">GitHub URL:</label>
-                    <input type="url" id="coinGithub" placeholder="https://github.com/seutoken">
-                </div>
-                <div class="form-group">
-                    <label for="coinMedium">Medium URL:</label>
-                    <input type="url" id="coinMedium" placeholder="https://medium.com/@seutoken">
-                </div>
-                <div class="form-group">
-                    <label for="coinYoutube">YouTube URL:</label>
-                    <input type="url" id="coinYoutube" placeholder="https://youtube.com/channel/seutoken">
-                </div>
-
-                <button type="submit" class="btn-submit"><i class="fas fa-plus-circle"></i> Adicionar Moeda</button>
-            </form>
-        </div>
-
-        <div id="trending" class="tab-content">
+        <div id="all-crypto" class="tab-content active"> 
             <div class="card table-card">
-                <div class="table-header">
-                    <h2>Trending Coins</h2>
-                    <button id="refreshTrending" class="btn-refresh"><i class="fas fa-sync-alt"></i> Atualizar</button>
+                <div class="table-responsive">
+                    <table id="cryptoTable" class="coin-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Moeda</th>
+                                <th>Preço</th>
+                                <th>24h %</th>
+                                <th class="desktop-only">Capitalização de Mercado</th>
+                                <th class="desktop-only">Volume 24h</th>
+                                <th class="desktop-only">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cryptoTableBody">
+                            <tr><td colspan="7" class="text-center">Carregando todas as moedas...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
+            </div>
+
+            <div class="card table-card" style="margin-top: 20px;">
+                <h3>Moedas em Destaque (Trending)</h3>
                 <div class="table-responsive">
                     <table class="coin-table">
                         <thead>
@@ -201,11 +134,9 @@
                     </table>
                 </div>
             </div>
-        </div>
 
-        <div id="new-listings" class="tab-content">
-            <div class="card table-card">
-                <h2>New Listings</h2>
+            <div class="card table-card" style="margin-top: 20px;">
+                <h3>Novos Lançamentos</h3>
                 <div class="table-responsive">
                     <table class="coin-table">
                         <thead>
@@ -224,64 +155,7 @@
                     </table>
                 </div>
             </div>
-        </div>
 
-        <div id="all-crypto" class="tab-content"> 
-            <div class="card table-card">
-                <div class="table-responsive">
-                    <table id="cryptoTable" class="coin-table">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Moeda</th>
-                                <th>Preço</th>
-                                <th>24h %</th>
-                                <th class="desktop-only">Capitalização de Mercado</th>
-                                <th class="desktop-only">Volume 24h</th>
-                                <th class="desktop-only">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="cryptoTableBody">
-                            <tr>
-                                <td>1</td>
-                                <td class="coin-cell">
-                                    <img src="https://assets.coingecko.com/coins/images/1/small/bitcoin.png?1547033579" alt="BTC Logo" class="coin-logo">
-                                    <div class="coin-info">
-                                        <span class="coin-name">Bitcoin</span>
-                                        <span class="coin-symbol">BTC</span>
-                                    </div>
-                                    <button class="btn-buy">Buy</button>
-                                </td>
-                                <td class="price">$69,000.00</td>
-                                <td><span class="price-change positive">+1.23%</span></td>
-                                <td class="desktop-only">$1.35T</td>
-                                <td class="desktop-only">$35.2B</td>
-                                <td class="desktop-only">
-                                    <button class="btn-action view-detail" data-coin-id="bitcoin"><i class="fas fa-info-circle"></i> Detalhes</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td class="coin-cell">
-                                    <img src="https://assets.coingecko.com/coins/images/279/small/ethereum.png?1595348880" alt="ETH Logo" class="coin-logo">
-                                    <div class="coin-info">
-                                        <span class="coin-name">Ethereum</span>
-                                        <span class="coin-symbol">ETH</span>
-                                    </div>
-                                    <button class="btn-buy">Buy</button>
-                                </td>
-                                <td class="price">$3,800.00</td>
-                                <td><span class="price-change negative">-0.78%</span></td>
-                                <td class="desktop-only">$450.0B</td>
-                                <td class="desktop-only">$18.5B</td>
-                                <td class="desktop-only">
-                                    <button class="btn-action view-detail" data-coin-id="ethereum"><i class="fas fa-info-circle"></i> Detalhes</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
         </div>
 
         <div id="nfts" class="tab-content">
@@ -295,7 +169,7 @@
 
         <div id="coinDetailModal" class="modal">
             <div class="modal-content large">
-                <span class="close">&times;</span>
+                <span class="close">×</span>
                 <div id="coinDetailContent">
                     <div class="modal-loader" style="display: none;">
                         <div class="loader-spinner"></div>
@@ -359,10 +233,6 @@
             });
 
             // Lógica para as sub-abas/filtros (ainda pode ser útil, mas o principal script.js deve cuidar disso)
-            // Se o script.js principal já lida com ".tab-link", você pode remover este bloco
-            // ou garantir que ele não cause conflitos de manipulação de classes.
-            // Eu o deixei aqui por enquanto, mas se o script.js for o principal,
-            // pode ser removido para evitar duplicidade.
             document.querySelectorAll('.sub-nav .sub-tab-link').forEach(tab => {
                 tab.addEventListener('click', function(e) {
                     e.preventDefault();
